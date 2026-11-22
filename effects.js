@@ -4,7 +4,18 @@ import {loadClip} from "./voice-clips.js";
 // Acoustic model: sharp stone impact + damped wooden board resonance.
 export function createEffects(getSettings) {
   const readSettings = () => getSettings?.() || {};
-  const assets = {
+  async function loadVoiceForScene(kind){
+    // Personal voice overrides always win. Otherwise use the eleven original
+    // recordings committed to the app. The PWA also caches these for offline.
+    const custom=await loadClip(kind);
+    if(custom)return custom;
+    try{
+      const response=await fetch("./assets/voices/"+encodeURIComponent(kind)+".mp3",{cache:"force-cache"});
+      if(response.ok)return await response.blob();
+    }catch(err){console.warn("Bundled voice unavailable",kind,err);}
+    return null;
+  }
+    const assets = {
     rise: "./assets/cutins/rise.svg",
     fall: "./assets/cutins/fall.svg",
     win: "./assets/cutins/win.svg",
@@ -178,13 +189,14 @@ export function createEffects(getSettings) {
     }
     const end=()=>finish(version,options.onDone);
     let deviceSpeechStarted = false;
-    // The user's MP3s are stored locally in IndexedDB. Decode and play
+    // The eleven supplied MP3s are included in this app. User overrides from
+    // IndexedDB are considered first. Decode and play
     // through a gesture-unlocked Web Audio context, which avoids Safari's
     // restrictions on play() calls occurring after asynchronous DB reads.
     if(settings.voice!==false && Number(settings.volume)>0 &&
        options.kind && assets[options.kind]) {
       cutinTimeout=setTimeout(startDeviceSpeech,3200);
-      loadClip(options.kind).then(async blob=>{
+      loadVoiceForScene(options.kind).then(async blob=>{
         if(version!==queueVersion||deviceSpeechStarted)return;
         if(!blob){startDeviceSpeech();return;}
         try{
