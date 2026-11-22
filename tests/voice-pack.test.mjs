@@ -43,7 +43,7 @@ test("root level pass.mp3 and all eleven MP3s also work", async()=>{
   assert.equal((await extractVoiceZip(blob,Zip)).length,11);
 });
 test("missing tracks are caught before any persistent write",async()=>{
-  await assert.rejects(()=>extractVoiceZip(await pack({missing:"score"}),Zip),/足りない音声/);
+  await assert.rejects(async()=>extractVoiceZip(await pack({missing:"score"}),Zip),/足りない音声/);
 });
 test("broken track header is rejected",async()=>{
   await assert.rejects(async()=>extractVoiceZip(await pack({broken:"win"}),Zip),/MP3形式/);
