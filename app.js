@@ -5,7 +5,7 @@ import { createEffects } from "./effects.js";
 const $ = id => document.getElementById(id);
 const STORAGE = "ikan_go_v1";
 const SETTINGS = "ikan_go_settings_v1";
-const defaults = { volume: 50, flip: false, vibration: true, lastMove: true, speed: "normal", cutin: true, voice: true };
+const defaults = { volume: 50, flip: false, vibration: true, lastMove: true, speed: "normal", cutin: true, voice: true, voiceStyle: "emotional" };
 let settings = {...defaults};
 let game = null;
 let config = { mode: "cpu", level: "15", humanColor: 1, size: 19, komi: 6.5 };
@@ -119,6 +119,16 @@ function dialog(id) {
 function closeDialogs() {
   for (const d of document.querySelectorAll("dialog[open]")) d.close();
 }
+async function openKataGo(){
+  const local="./katago/";
+  const upstream="https://sir-teo.github.io/web-katrain/";
+  try{
+    const response=await fetch("./katago/index.html",{method:"HEAD",cache:"no-store"});
+    if(response.ok){window.location.href=local;return;}
+  }catch(e){console.warn("Local KataGo unavailable",e);}
+  // Upstream real KataGo is the fallback, NOT our simple heuristic opponent.
+  window.location.href=upstream;
+}
 function sound(kind = "place") { effects.sound(kind); }
 function cutin(phrase, subtitle, label, force = false, kind = null, onDone = null) {
   effects.cutin(phrase, subtitle, label, {force, kind, onDone});
@@ -166,7 +176,7 @@ function startNewGame(e) {
   effects.stop();
   const form = new FormData($("setupForm"));
   if(form.get("mode")==="katago"){
-    window.location.href="./katago/";
+    openKataGo();
     return;
   }
   const choice = form.get("color");
@@ -761,8 +771,8 @@ function wire() {
   $("menuHomeBtn").onclick=showHome;
   $("menuResignBtn").onclick=resign;
   $("menuHelpBtn").onclick=()=>dialog("helpDialog");
-  $("menuKatagoBtn").onclick=()=>{window.location.href="./katago/";};
-  $("homeKatagoBtn").onclick=()=>{window.location.href="./katago/";};
+  $("menuKatagoBtn").onclick=openKataGo;
+  $("homeKatagoBtn").onclick=openKataGo;
   $("setupForm").addEventListener("submit",startNewGame);
   $("modeSelect").addEventListener("change",toggleSetupFields);
   document.querySelectorAll("[data-close]").forEach(button => {
@@ -785,6 +795,7 @@ function wire() {
   $("speedInput").onchange=e=>{settings.speed=e.target.value;saveSettings();scheduleCpu();};
   $("cutinInput").onchange=e=>{settings.cutin=e.target.checked;saveSettings();};
   $("voiceInput").onchange=e=>{settings.voice=e.target.checked;saveSettings();};
+  $("voiceStyleInput").onchange=e=>{settings.voiceStyle=e.target.value;saveSettings();};
   const canvas=$("boardCanvas");
   canvas.addEventListener("pointerdown",onPointerDown);
   canvas.addEventListener("pointermove",onPointerMove);
@@ -819,6 +830,7 @@ function fillSettings(){
   $("speedInput").value=settings.speed;
   $("cutinInput").checked=settings.cutin;
   $("voiceInput").checked=settings.voice;
+  $("voiceStyleInput").value=settings.voiceStyle;
 }
 function initialize(){
   const savedSettings=safeParse(SETTINGS);
