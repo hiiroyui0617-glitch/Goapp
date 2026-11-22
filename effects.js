@@ -136,7 +136,7 @@ export function createEffects(getSettings) {
     currentVoice=null;
     try{synth?.cancel();}catch{}
     const el=document.getElementById("cutin");
-    if(el){el.hidden=true;el.classList.remove("cutin-visible","cutin-exit");}
+    if(el){el.hidden=true;el.classList.remove("cutin-visible","cutin-exit","has-art");}
   }
   function cutin(phrase,subtitle="",label="",options={}) {
     const time=Date.now();
@@ -151,6 +151,7 @@ export function createEffects(getSettings) {
       const img=document.getElementById("cutinArt");
       const kind=assets[options.kind] ? options.kind : null;
       img.hidden=!kind;
+      el.classList.toggle("has-art",Boolean(kind));
       if(kind)img.src=assets[kind];
       document.getElementById("cutinText").textContent=phrase;
       document.getElementById("cutinSub").textContent=subtitle;
