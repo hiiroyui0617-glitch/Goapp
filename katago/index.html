@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Web KaTrain is a browser-native Go study board with SGF editing, analysis, library storage, and offline-ready review tools."
+    />
+    <meta name="title" content="Web KaTrain" />
+    <meta
+      name="keywords"
+      content="go game, baduk, weiqi, sgf editor, katago analysis, go study, web katrain, pwa"
+    />
+    <meta name="author" content="Web KaTrain" />
+    <meta name="theme-color" content="#141815" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Web KaTrain" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!--
+      og:image and twitter:image are absolute, not /Goapp/katago/-relative.
+
+      Open Graph requires an absolute URL with a scheme, and the scrapers behave
+      accordingly: /Goapp/katago/ expands to "/web-katrain/" on the deployment, and
+      a link preview asking for summary_large_image was resolving that against
+      nothing and rendering with no image at all. The origin is the one
+      robots.txt and sitemap.xml already publish, and pwaAssets.test.ts pins all
+      three to the same string so it cannot drift to a fourth spelling.
+
+      A fork serving this from somewhere else gets the upstream screenshot in
+      its previews until it changes these three lines, which is the visible,
+      recoverable failure; a card with no image is neither.
+    -->
+    <meta property="og:title" content="Web KaTrain" />
+    <meta property="og:description" content="A polished browser-native Go study and analysis workspace." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://sir-teo.github.io/web-katrain/" />
+    <meta property="og:image" content="https://sir-teo.github.io/web-katrain/pwa/screenshot-wide.png" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="800" />
+    <meta property="og:image:alt" content="Web KaTrain desktop study workspace" />
+    <meta property="og:site_name" content="Web KaTrain" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Web KaTrain" />
+    <meta name="twitter:description" content="A polished browser-native Go study and analysis workspace." />
+    <meta name="twitter:image" content="https://sir-teo.github.io/web-katrain/pwa/screenshot-wide.png" />
+    <meta name="twitter:image:alt" content="Web KaTrain desktop study workspace" />
+    <link rel="icon" type="image/svg+xml" href="/Goapp/katago/pwa/icon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/Goapp/katago/pwa/apple-touch-icon.png" />
+    <link rel="manifest" href="/Goapp/katago/manifest.webmanifest" />
+    <link rel="canonical" href="https://sir-teo.github.io/web-katrain/" />
+    <title>Web KaTrain</title>
+    <script type="module" crossorigin src="/Goapp/katago/assets/main-jQnVUv5W.js"></script>
+    <link rel="modulepreload" crossorigin href="/Goapp/katago/assets/react-vendor-BKk7ucTW.js">
+    <link rel="modulepreload" crossorigin href="/Goapp/katago/assets/icons-Baa24Bry.js">
+    <link rel="modulepreload" crossorigin href="/Goapp/katago/assets/vendor-awwjIm7w.js">
+    <link rel="stylesheet" crossorigin href="/Goapp/katago/assets/main-Br-RSU2V.css">
+    <meta name="web-katrain-offline-worker" content="/Goapp/katago/assets/katago-worker-3vdS5qHy.js">
+    <script>(function(){try{if(!window.matchMedia||!matchMedia("(min-width: 1024px) and (min-height: 500px)").matches)return;var add=function(rel,href,as){var l=document.createElement("link");l.rel=rel;l.href=href;if(as)l.as=as;l.crossOrigin="";document.head.appendChild(l);};add("modulepreload","/Goapp/katago/assets/DesktopDashboard-jaoGiddI.js");add("modulepreload","/Goapp/katago/assets/ScoreWinrateGraph-BwKqEIFN.js");add("preload","/Goapp/katago/assets/DesktopDashboard-C-sHUFSr.css","style");}catch(e){}})();</script>
+  </head>
+  <body>
+    <div id="root"></div>
+  <a href="../" style="position:fixed;z-index:2147483647;right:8px;bottom:8px;padding:7px 12px;border-radius:8px;background:#1a3346;color:white;font:600 13px sans-serif;box-shadow:0 2px 9px #0007;text-decoration:none;">囲碁アプリに戻る</a></body>
+</html>
