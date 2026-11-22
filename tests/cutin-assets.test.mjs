@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-const variants={rise:"支持率上昇",fall:"支持率下落",win:"当選",lose:"遺憾です",undo:"記憶にございません"};
+const variants={rise:"支持率上昇",fall:"支持率下落",win:"当選",lose:"遺憾です",undo:"記憶にございません",pass:"答弁を差し控えます",illegal:"その一手いかんです",hint:"有識者会議",score:"議席集計中",start:"開会",novice:"初心者支援策"};
 test("five original cut-in assets exist with their requested text",()=>{
   for(const [name,headline] of Object.entries(variants)){
     const path="assets/cutins/"+name+".svg";
