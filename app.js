@@ -120,8 +120,8 @@ function closeDialogs() {
   for (const d of document.querySelectorAll("dialog[open]")) d.close();
 }
 function sound(kind = "place") { effects.sound(kind); }
-function cutin(phrase, subtitle, label, force = false) {
-  effects.cutin(phrase, subtitle, label, {force});
+function cutin(phrase, subtitle, label, force = false, kind = null, onDone = null) {
+  effects.cutin(phrase, subtitle, label, {force, kind, onDone});
 }
 
 function vibrate() {
@@ -250,9 +250,9 @@ function play(x, y) {
   ui.baseCache = null;
   sound(result.captured ? "capture" : "place");
   vibrate();
-  if (result.captured) {
-    toast(result.captured >= 5 ? "支持基盤が大きく揺らぎました。（" + result.captured + "子取り）" : result.captured + "子を確保。これは適切な行政執行です。");
-    if (result.captured >= 3) cutin("支持基盤が崩壊！", result.captured+"子が一斉に退陣しました。", "緊急速報");
+  if (result.captured > 0) {
+    toast(result.captured + "子を確保。支持率が上昇しました。");
+    cutin("支持率上昇！", result.captured+"子を獲得しました。", "開票速報", true, "rise");
   }
   ui.preview = null;
   update();
@@ -273,8 +273,12 @@ function scheduleCpu() {
         const result = game.play(choice.x, choice.y);
         if (result.ok) {
           sound(result.captured ? "capture" : "place");
-          if (result.captured >= 4)
-            cutin("説明責任を果たしていただきたい。", "CPUが"+result.captured+"子を確保しました。","緊急記者会見");
+          if (result.captured > 0) {
+            const userLost = config.mode === "cpu" && game.turn === config.humanColor;
+            cutin(userLost ? "支持率下落！" : "支持率上昇！",
+              "CPUが"+result.captured+"子を取りました。",
+              "緊急速報", true, userLost ? "fall" : "rise");
+          }
         } else game.pass();
       } else game.pass();
       ui.hint = null;
@@ -319,7 +323,7 @@ function undoMove() {
   ui.hint = null; ui.preview = null; ui.baseCache = null; ui.dead.clear();
   update();
   toast("記憶にございません。（" + undone + "手前に戻しました）");
-  cutin("記憶にございません。","議事録を"+undone+"手分修正しました。","答弁撤回",true);
+  cutin("記憶にございません。","議事録を"+undone+"手分修正しました。","答弁撤回",true,"undo");
   vibrate();
   scheduleCpu();
 }
@@ -400,10 +404,11 @@ function finishScoring() {
     const winner = score.lead > 0 ? "黒" : score.lead < 0 ? "白" : null;
     const margin = Math.abs(score.lead).toFixed(1).replace(/\.0$/, "");
     const humanLost = config.mode === "cpu" && winner && ((winner === "黒" && config.humanColor === 2) || (winner === "白" && config.humanColor === 1));
-    const title = !winner ? "議決は同数です。" : humanLost ? (Number(margin) >= 20 ? "誠に遺憾です。" : "遺憾です。") : "審議の結果、可決されました。";
+    const title = !winner ? "議決は同数です。" : humanLost ?
+      (Number(margin) >= 20 ? "誠に遺憾です。" : "遺憾です。") : "当選！";
     showResult(title, winner
       ? winner + "の" + margin + "目勝ち。黒" + score.black + "目 ／ 白" + score.white + "目（コミ" + game.komi + "目を含む）。"
-      : "持碁です。両者の主張が一致しました。");
+      : "持碁です。両者の主張が一致しました。", humanLost ? "lose" : "win");
     save();
   };
   if (!game.finished)
@@ -422,22 +427,22 @@ function resign() {
     update();
     showResult(dramatic ? "誠に遺憾です。" : "遺憾です。",
       (loser === 1 ? "黒" : "白") + "の投了により、" + (loser === 1 ? "白" : "黒") +
-      "の中押し勝ち。説明責任を果たせなかった可能性があります。");
+      "の中押し勝ち。説明責任を果たせなかった可能性があります。", "lose");
   });
 }
-function showResult(title, body) {
+function showResult(title, body, kind = "win") {
   $("resultTitle").textContent = title;
   $("resultBody").textContent = body;
-  // Modal dialogs occupy the browser's top layer; display the cut-in BEFORE
-  // the result modal, otherwise its backdrop would conceal the animation.
-  cutin(title, "対局結果を正式に発表します。","政府見解",true);
-  const finalGame = game;
-  const openResult = () => {
-    if (game === finalGame && game?.finished && !home) dialog("resultDialog");
+  const finishedGame = game;
+  const showDialog = () => {
+    if (game === finishedGame && game?.finished && !home) dialog("resultDialog");
   };
-  if (settings.cutin) setTimeout(openResult, 1520);
-  else openResult();
+  // Opens result screen only AFTER text-to-speech has finished and the image
+  // has slid down again, rather than interrupting speech after a fixed delay.
+  cutin(kind === "win" ? "当選！" : kind === "lose" ? "遺憾です。" : title,
+    "対局結果を正式に発表します。", "選挙管理委員会", true, kind, showDialog);
 }
+
 function boardMetrics() {
   const canvas = $("boardCanvas");
   const w = Math.max(200, Math.round(canvas.getBoundingClientRect().width || 350));
