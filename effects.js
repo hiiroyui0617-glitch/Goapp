@@ -33,6 +33,8 @@ export function createEffects(getSettings) {
   let queueVersion = 0;
   let cutinTimeout = 0;
   let lastCutin = 0;
+  let cutinBusy = false;
+  let pendingCutins = [];
   let currentVoice = null;
   let recordedAudio = null;
   let recordedSource = null;
@@ -145,15 +147,30 @@ export function createEffects(getSettings) {
     if(version!==queueVersion)return;
     clearTimeout(cutinTimeout);
     currentVoice=null;
-    recordedSource=null;
+    if(recordedSource){
+      const ended=recordedSource;
+      recordedSource=null;
+      ended.onended=null;
+      try{ended.stop();}catch{}
+    }
+    if(recordedAudio){try{recordedAudio.pause();}catch{}recordedAudio=null;}
     if(recordedObjectUrl){URL.revokeObjectURL(recordedObjectUrl);recordedObjectUrl=null;}
+    cutinBusy=false;
     hide();
     if(typeof callback==="function"){
-      // Results should appear only after the spoken cut-in is done.
+      // The result dialog must appear after audio and slide-out finish.
       setTimeout(callback,260);
     }
+    // If moves occur quickly, play pending announcements one by one instead
+    // of cutting speech off mid-sentence. Avoid an unbounded voice backlog.
+    setTimeout(()=>{
+      if(cutinBusy||pendingCutins.length===0)return;
+      const next=pendingCutins.shift();
+      cutin(next.phrase,next.subtitle,next.label,next.options);
+    },300);
   }
-  function stop() {
+  function stop(keepPending=false) {
+    if(!keepPending){pendingCutins=[];cutinBusy=false;}
     queueVersion++;
     clearTimeout(cutinTimeout);
     currentVoice=null;
@@ -167,8 +184,18 @@ export function createEffects(getSettings) {
   function cutin(phrase,subtitle="",label="",options={}) {
     const time=Date.now();
     if(!options.force && time-lastCutin<480)return;
+    if(cutinBusy){
+      // Closing announcements have priority; ordinary move events queue.
+      if(options.onDone){stop();}
+      else{
+        pendingCutins.push({phrase,subtitle,label,options});
+        if(pendingCutins.length>3)pendingCutins.shift();
+        return;
+      }
+    }
     lastCutin=time;
-    stop();
+    stop(true);
+    cutinBusy=true;
     const version=queueVersion;
     const settings=readSettings();
     const visualEnabled=settings.cutin!==false;
