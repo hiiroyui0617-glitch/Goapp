@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 530" role="img" aria-label="有識者会議">
+ <defs>
+ <linearGradient id="blue" x2="1" y2="1"><stop stop-color="#1230e9"/><stop offset="1" stop-color="#080da0"/></linearGradient>
+ <linearGradient id="red" x2="1" y2=".4"><stop stop-color="#224968"/><stop offset=".5" stop-color="#c72d35"/><stop offset="1" stop-color="#591b35"/></linearGradient>
+ <linearGradient id="face" x2=".4" y2="1"><stop stop-color="#ffeacb"/><stop offset="1" stop-color="#efb18e"/></linearGradient>
+ <clipPath id="panel"><path d="M165 0H1024L833 530H0Z"/></clipPath>
+ </defs>
+ <rect width="1024" height="530" fill="url(#blue)"/>
+ <g stroke="#fafcff" stroke-width="3" opacity=".62"><path d="M-80 0L6 530"/><path d="M-9 530L99 0"/><path d="M62 0L192 530"/><path d="M133 530L285 0"/><path d="M204 0L378 530"/><path d="M275 530L471 0"/><path d="M346 0L564 530"/><path d="M417 530L657 0"/><path d="M488 0L750 530"/><path d="M559 530L843 0"/><path d="M630 0L936 530"/><path d="M701 530L1029 0"/><path d="M772 0L1122 530"/><path d="M843 530L1215 0"/><path d="M914 0L1308 530"/><path d="M985 530L1401 0"/><path d="M1056 0L1494 530"/><path d="M1127 530L1587 0"/><path d="M1198 0L1680 530"/><path d="M1269 530L1773 0"/></g>
+ <path d="M165 0H1024L833 530H0Z" fill="#fbfcfa" stroke="#14121b" stroke-width="19"/>
+ <g clip-path="url(#panel)">
+ <rect width="1024" height="530" fill="url(#red)"/>
+ <g stroke="#ffffff" opacity=".29" stroke-width="38"><path d="M155 85L980 405M60 425L960 47M210 550L1000 160"/></g>
+ <g stroke="#fee9aa" opacity=".7" stroke-width="7"><path d="M130 140L918 255M151 470L939 160"/></g>
+ <g opacity=".28" stroke="#fff1d9" stroke-width="2"><path d="M0 0v530M0 0h1024"/><path d="M83 0v530M0 49h1024"/><path d="M166 0v530M0 98h1024"/><path d="M249 0v530M0 147h1024"/><path d="M332 0v530M0 196h1024"/><path d="M415 0v530M0 245h1024"/><path d="M498 0v530M0 294h1024"/><path d="M581 0v530M0 343h1024"/><path d="M664 0v530M0 392h1024"/><path d="M747 0v530M0 441h1024"/><path d="M830 0v530M0 490h1024"/><path d="M913 0v530M0 539h1024"/></g>
+ <!-- press microphones and podium -->
+ <path d="M103 521Q115 350 188 318Q238 294 282 318L427 319Q520 344 550 530Z" fill="#1d3246" stroke="#101824" stroke-width="11"/>
+ <path d="M243 334l42 81 71 113 38-190" fill="#fff8f1" stroke="#252b31" stroke-width="8"/>
+ <path d="M295 344l23 23 25-20-24-18Z" fill="#b32039" stroke="#712335" stroke-width="4"/>
+ <path d="M318 364l39 152-41 40-20-41Z" fill="#b8263d" stroke="#692134" stroke-width="5"/>
+ <path d="M227 379Q235 298 262 230Q272 157 351 152Q432 159 440 247Q449 318 399 348Q336 375 268 345Z" fill="url(#face)" stroke="#3c2d32" stroke-width="8"/>
+ <path d="M244 215Q221 175 268 135Q286 116 296 102Q312 114 330 96Q355 92 385 110Q417 104 443 138Q460 163 439 225L427 202Q410 166 395 163L368 174L332 160Q286 174 259 220Z" fill="#292833" stroke="#121c26" stroke-width="9"/>
+ <path d="M260 189q70-66 149-37" fill="none" stroke="#6b6877" stroke-width="13"/>
+ <path d="M279 210q30-15 59-6M361 208q33-18 61 1" fill="none" stroke="#2b2428" stroke-width="8"/>
+ <path d="M292 225q21-15 43-6M359 218q25-13 46-3" fill="none" stroke="#392d31" stroke-width="8"/><path d="M310 270q35 13 81-6" fill="none" stroke="#442b2d" stroke-width="5"/>
+ <path d="M102 363L153 306L168 293Q194 290 200 314L171 360Z" fill="#ffdbbd" stroke="#382934" stroke-width="8"/>
+ <path d="M177 420L238 386 245 528H115Z" fill="#25435b" stroke="#17212f" stroke-width="8"/>
+ <!-- political rosette -->
+ <circle cx="441" cy="416" r="28" fill="#ffe08d" stroke="#49351f" stroke-width="7"/>
+ <circle cx="441" cy="416" r="18" fill="#fffbd9" stroke="#a9914c" stroke-width="3"/>
+ <path d="M429 403v25M441 400v30M453 403v25M427 404h29M426 416h31M427 428h29" stroke="#1d1e27" stroke-width="3"/>
+ <!-- clustered press microphones -->
+ <g><path d="M288 534L297 390M363 534L366 404M454 538L451 384" stroke="#121723" stroke-width="13"/>
+ <ellipse cx="297" cy="392" rx="19" ry="25" fill="#535e6c" stroke="#1c2432" stroke-width="7"/>
+ <ellipse cx="365" cy="403" rx="18" ry="24" fill="#aab5c6" stroke="#1b2230" stroke-width="7"/>
+ <ellipse cx="450" cy="385" rx="18" ry="24" fill="#3b465d" stroke="#1b2230" stroke-width="7"/></g>
+ <g font-family="'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif" text-anchor="middle" font-weight="900" paint-order="stroke" stroke-linejoin="round">
+ <text x="738" y="200" font-size="108" stroke="#fff4eb" stroke-width="23" fill="#17151b">有識者</text>
+ <text x="728" y="355" font-size="151" stroke="#fff4eb" stroke-width="21" fill="#17151b">会議</text>
+ <text x="728" y="459" font-size="29" stroke="#231a27" stroke-width="7" fill="#ffe08d">参考意見</text>
+ </g>
+ </g>
+ <path d="M165 0L0 530M1024 0L833 530" stroke="#17121c" stroke-width="13"/>
+ <path d="M180 0L13 530M1012 0L821 530" stroke="#fffef6" stroke-width="8"/>
+ </svg>
