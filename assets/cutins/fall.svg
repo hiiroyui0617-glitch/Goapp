@@ -1,43 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 530" role="img" aria-label="支持率下落">
  <defs>
- <linearGradient id="outer" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#132aff"/><stop offset=".55" stop-color="#164ffe"/><stop offset="1" stop-color="#0011bf"/></linearGradient>
- <linearGradient id="red" x1="0" y1="0" x2="1" y2=".3"><stop stop-color="#600d29"/><stop offset=".48" stop-color="#e02c32"/><stop offset="1" stop-color="#640d1c"/></linearGradient>
- <linearGradient id="hair" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ececf4"/><stop offset="1" stop-color="#918da3"/></linearGradient>
- <clipPath id="clip"><path d="M130 0H1024L844 530H0Z"/></clipPath>
- <filter id="shadow"><feDropShadow dx="0" dy="9" stdDeviation="6" flood-opacity=".7"/></filter>
+ <linearGradient id="blue" x2="1" y2="1"><stop stop-color="#1230e9"/><stop offset="1" stop-color="#080da0"/></linearGradient>
+ <linearGradient id="red" x2="1" y2=".4"><stop stop-color="#371f54"/><stop offset=".5" stop-color="#c72d35"/><stop offset="1" stop-color="#591b35"/></linearGradient>
+ <linearGradient id="face" x2=".4" y2="1"><stop stop-color="#ffeacb"/><stop offset="1" stop-color="#efb18e"/></linearGradient>
+ <clipPath id="panel"><path d="M165 0H1024L833 530H0Z"/></clipPath>
  </defs>
- <rect width="1024" height="530" fill="url(#outer)"/>
- <g><path d="M29 550 L0 -18" stroke="white" stroke-width="5" opacity="0.25"/><path d="M112 -25 L213 552" stroke="#83a7ff" stroke-width="2" opacity="0.37"/><path d="M195 550 L426 -18" stroke="#83a7ff" stroke-width="2" opacity="0.49"/><path d="M278 -25 L639 552" stroke="white" stroke-width="2" opacity="0.61"/><path d="M361 550 L852 -18" stroke="#83a7ff" stroke-width="5" opacity="0.25"/><path d="M444 -25 L5 552" stroke="#83a7ff" stroke-width="2" opacity="0.37"/><path d="M527 550 L218 -18" stroke="white" stroke-width="2" opacity="0.49"/><path d="M610 -25 L431 552" stroke="#83a7ff" stroke-width="2" opacity="0.61"/><path d="M693 550 L644 -18" stroke="#83a7ff" stroke-width="5" opacity="0.25"/><path d="M776 -25 L857 552" stroke="white" stroke-width="2" opacity="0.37"/><path d="M859 550 L10 -18" stroke="#83a7ff" stroke-width="2" opacity="0.49"/><path d="M942 -25 L223 552" stroke="#83a7ff" stroke-width="2" opacity="0.61"/><path d="M1025 550 L436 -18" stroke="white" stroke-width="5" opacity="0.25"/><path d="M78 -25 L649 552" stroke="#83a7ff" stroke-width="2" opacity="0.37"/><path d="M161 550 L862 -18" stroke="#83a7ff" stroke-width="2" opacity="0.49"/><path d="M244 -25 L15 552" stroke="white" stroke-width="2" opacity="0.61"/><path d="M327 550 L228 -18" stroke="#83a7ff" stroke-width="5" opacity="0.25"/><path d="M410 -25 L441 552" stroke="#83a7ff" stroke-width="2" opacity="0.37"/><path d="M493 550 L654 -18" stroke="white" stroke-width="2" opacity="0.49"/><path d="M576 -25 L867 552" stroke="#83a7ff" stroke-width="2" opacity="0.61"/><path d="M659 550 L20 -18" stroke="#83a7ff" stroke-width="5" opacity="0.25"/></g>
- <path d="M130 0H1024L844 530H0Z" fill="#fff" stroke="#0d0c13" stroke-width="23" filter="url(#shadow)"/>
- <g clip-path="url(#clip)">
+ <rect width="1024" height="530" fill="url(#blue)"/>
+ <g stroke="#fafcff" stroke-width="3" opacity=".62"><path d="M-80 0L6 530"/><path d="M-9 530L99 0"/><path d="M62 0L192 530"/><path d="M133 530L285 0"/><path d="M204 0L378 530"/><path d="M275 530L471 0"/><path d="M346 0L564 530"/><path d="M417 530L657 0"/><path d="M488 0L750 530"/><path d="M559 530L843 0"/><path d="M630 0L936 530"/><path d="M701 530L1029 0"/><path d="M772 0L1122 530"/><path d="M843 530L1215 0"/><path d="M914 0L1308 530"/><path d="M985 530L1401 0"/><path d="M1056 0L1494 530"/><path d="M1127 530L1587 0"/><path d="M1198 0L1680 530"/><path d="M1269 530L1773 0"/></g>
+ <path d="M165 0H1024L833 530H0Z" fill="#fbfcfa" stroke="#14121b" stroke-width="19"/>
+ <g clip-path="url(#panel)">
  <rect width="1024" height="530" fill="url(#red)"/>
- <path d="M190 35L1030 240M112 430L930 120M-50 500L1100 300" stroke="#fff" stroke-width="54" opacity=".3"/>
- <path d="M130 550L1040 55M130 150L880 580" stroke="#fff" stroke-width="14" opacity=".75"/>
- <g opacity=".5" stroke="#5a3238" stroke-width="3">
- <path d="M-50 0v530M0 0h1024"/><path d="M3 0v530M0 37h1024"/><path d="M56 0v530M0 74h1024"/><path d="M109 0v530M0 111h1024"/><path d="M162 0v530M0 148h1024"/><path d="M215 0v530M0 185h1024"/><path d="M268 0v530M0 222h1024"/><path d="M321 0v530M0 259h1024"/><path d="M374 0v530M0 296h1024"/><path d="M427 0v530M0 333h1024"/><path d="M480 0v530M0 370h1024"/><path d="M533 0v530M0 407h1024"/><path d="M586 0v530M0 444h1024"/><path d="M639 0v530M0 481h1024"/><path d="M692 0v530M0 518h1024"/><path d="M745 0v530M0 555h1024"/><path d="M798 0v530M0 592h1024"/><path d="M851 0v530M0 629h1024"/>
+ <g stroke="#ffffff" opacity=".29" stroke-width="38"><path d="M155 85L980 405M60 425L960 47M210 550L1000 160"/></g>
+ <g stroke="#fee9aa" opacity=".7" stroke-width="7"><path d="M130 140L918 255M151 470L939 160"/></g>
+ <g opacity=".28" stroke="#fff1d9" stroke-width="2"><path d="M0 0v530M0 0h1024"/><path d="M83 0v530M0 49h1024"/><path d="M166 0v530M0 98h1024"/><path d="M249 0v530M0 147h1024"/><path d="M332 0v530M0 196h1024"/><path d="M415 0v530M0 245h1024"/><path d="M498 0v530M0 294h1024"/><path d="M581 0v530M0 343h1024"/><path d="M664 0v530M0 392h1024"/><path d="M747 0v530M0 441h1024"/><path d="M830 0v530M0 490h1024"/><path d="M913 0v530M0 539h1024"/></g>
+ <!-- press microphones and podium -->
+ <path d="M103 521Q115 350 188 318Q238 294 282 318L427 319Q520 344 550 530Z" fill="#1d3246" stroke="#101824" stroke-width="11"/>
+ <path d="M243 334l42 81 71 113 38-190" fill="#fff8f1" stroke="#252b31" stroke-width="8"/>
+ <path d="M295 344l23 23 25-20-24-18Z" fill="#b32039" stroke="#712335" stroke-width="4"/>
+ <path d="M318 364l39 152-41 40-20-41Z" fill="#b8263d" stroke="#692134" stroke-width="5"/>
+ <path d="M227 379Q235 298 262 230Q272 157 351 152Q432 159 440 247Q449 318 399 348Q336 375 268 345Z" fill="url(#face)" stroke="#3c2d32" stroke-width="8"/>
+ <path d="M244 215Q221 175 268 135Q286 116 296 102Q312 114 330 96Q355 92 385 110Q417 104 443 138Q460 163 439 225L427 202Q410 166 395 163L368 174L332 160Q286 174 259 220Z" fill="#292833" stroke="#121c26" stroke-width="9"/>
+ <path d="M260 189q70-66 149-37" fill="none" stroke="#6b6877" stroke-width="13"/>
+ <path d="M279 210q30-15 59-6M361 208q33-18 61 1" fill="none" stroke="#2b2428" stroke-width="8"/>
+ <path d="M282 219Q313 183 337 228M353 227Q371 194 406 222" fill="none" stroke="#392d31" stroke-width="11"/><path d="M303 257Q354 221 388 261" fill="none" stroke="#533641" stroke-width="9"/><path d="M305 245q-30 70-3 92 23-9 3-92M390 247q-17 75 9 86 23-13-9-86" fill="#7cddff" stroke="#2c89c3" stroke-width="5"/><path d="M353 266q-19 26-1 49 22 3 17-29Z" fill="#71333c" stroke="#36222b" stroke-width="5"/>
+ <path d="M399 224L450 166Q463 152 474 160L454 215Q471 169 487 185Q499 194 477 249L443 294" fill="#ffdcbe" stroke="#382934" stroke-width="8"/>
+ <path d="M177 420L238 386 245 528H115Z" fill="#25435b" stroke="#17212f" stroke-width="8"/>
+ <!-- political rosette -->
+ <circle cx="441" cy="416" r="28" fill="#98c5ed" stroke="#49351f" stroke-width="7"/>
+ <circle cx="441" cy="416" r="18" fill="#fffbd9" stroke="#a9914c" stroke-width="3"/>
+ <path d="M429 403v25M441 400v30M453 403v25M427 404h29M426 416h31M427 428h29" stroke="#1d1e27" stroke-width="3"/>
+ <!-- clustered press microphones -->
+ <g><path d="M288 534L297 390M363 534L366 404M454 538L451 384" stroke="#121723" stroke-width="13"/>
+ <ellipse cx="297" cy="392" rx="19" ry="25" fill="#535e6c" stroke="#1c2432" stroke-width="7"/>
+ <ellipse cx="365" cy="403" rx="18" ry="24" fill="#aab5c6" stroke="#1b2230" stroke-width="7"/>
+ <ellipse cx="450" cy="385" rx="18" ry="24" fill="#3b465d" stroke="#1b2230" stroke-width="7"/></g>
+ <g font-family="'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif" text-anchor="middle" font-weight="900" paint-order="stroke" stroke-linejoin="round">
+ <text x="738" y="200" font-size="108" stroke="#fff4eb" stroke-width="23" fill="#17151b">支持率</text>
+ <text x="728" y="355" font-size="151" stroke="#fff4eb" stroke-width="21" fill="#17151b">下落</text>
+ <text x="728" y="459" font-size="29" stroke="#231a27" stroke-width="7" fill="#98c5ed">釈明会見</text>
  </g>
- <g><circle cx="148" cy="79" r="25" fill="#1f1f27" stroke="#000" stroke-width="4"/><circle cx="207" cy="91" r="25" fill="#f6f3f2" stroke="#25272b" stroke-width="4"/></g>
- <g transform="translate(-25,0)" filter="url(#shadow)">
- <path d="M66 570L119 352Q159 321 209 309L405 311Q462 331 497 388L569 585Z" fill="#173a32" stroke="#101d1c" stroke-width="10"/>
- <path d="M198 337L253 405 336 541 312 344M365 330L319 401 351 537 444 352" fill="#33594a" stroke="#a3ac88" stroke-width="7"/>
- <path d="M245 339L273 411 322 380 365 339" fill="#fff8f1" stroke="#171c22" stroke-width="7"/>
- <path d="M305 367L324 394 344 362 326 344Z" fill="#bd2537" stroke="#661a24" stroke-width="4"/>
- <path d="M324 390L361 539 323 572 299 540Z" fill="#be2437" stroke="#651925" stroke-width="5"/>
- <path d="M268 330Q245 289 255 217 261 120 347 127 421 132 435 209 438 278 382 329Z" fill="#ffe1d1" stroke="#342c35" stroke-width="9"/>
- <path d="M223 240Q188 216 211 175q-36 22-54-5 45-13 61-55-63 10-51-22 65 2 91-47 12-23 24-3 29-39 57-7 45-37 76 5 49-22 65 32-16 18-33 21 47 11 38 44-37 16-57-4-17 63-44 77l-3-58-35 41 4-59-37 56-15-30-39 54-1-49-35 41-7-32Z" fill="url(#hair)" stroke="#383443" stroke-width="10"/>
- <path d="M218 166Q277 103 334 87M282 172Q353 90 430 96M314 115q69-46 117-16M239 197q-9-42 34-94" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
- <path d="M268 202q28-16 64-11M360 188q34-11 58 1" fill="none" stroke="#47424d" stroke-width="7"/>
- <ellipse cx="313" cy="217" rx="19" ry="24" fill="#fff" stroke="#191925" stroke-width="5"/><ellipse cx="384" cy="213" rx="19" ry="24" fill="#fff" stroke="#191925" stroke-width="5"/><circle cx="319" cy="217" r="9" fill="#29313c"/><circle cx="390" cy="215" r="9" fill="#29313c"/><ellipse cx="356" cy="260" rx="15" ry="24" fill="#4a1f2c" stroke="#27222a" stroke-width="5"/><path d="M255 246q-30 19-8 31" fill="none" stroke="#7fc6e8" stroke-width="7"/><path d="M426 242q25 43 2 50-25-6-2-50Z" fill="#77eaff" stroke="#224262" stroke-width="5"/>
- <path d="M275 313q64 17 121-9" fill="none" stroke="#d5a69e" stroke-width="5"/>
- <path d="M163 356q-21-26-18-61 6-26 23-23l24 36 88-35q23 2 22 20-2 16-75 52l-29 28Z" fill="#ffd8c7" stroke="#25212d" stroke-width="8"/>
- <circle cx="438" cy="414" r="29" fill="#dcbf68" stroke="#362f23" stroke-width="6"/><circle cx="438" cy="414" r="18" fill="#f4dfa5"/><circle cx="430" cy="407" r="6" fill="#13151a"/><circle cx="449" cy="411" r="6" fill="#fdfdfd" stroke="#333"/><circle cx="436" cy="425" r="6" fill="#1a1a22"/>
  </g>
- <g font-family="-apple-system, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif" font-weight="900" text-anchor="middle" paint-order="stroke" stroke-linejoin="round">
- <text x="762" y="200" font-size="118" stroke="#fff" stroke-width="22" fill="#131017">支持率</text>
- <text x="735" y="363" font-size="118" stroke="#fff" stroke-width="22" fill="#131017">下落</text>
- <text x="738" y="466" font-size="27" stroke="#120c14" stroke-width="5" fill="#b3b2ff">＼ 緊急事態 ／</text>
- </g>
- </g>
- <path d="M130 0L0 530M1024 0L844 530" fill="none" stroke="#000" stroke-width="13"/>
- <path d="M146 0L16 530M1010 0L832 530" fill="none" stroke="#fff" stroke-width="9"/>
+ <path d="M165 0L0 530M1024 0L833 530" stroke="#17121c" stroke-width="13"/>
+ <path d="M180 0L13 530M1012 0L821 530" stroke="#fffef6" stroke-width="8"/>
  </svg>
