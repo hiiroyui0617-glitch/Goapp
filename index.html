@@ -138,6 +138,15 @@
       <label class="setting-row"><span>カットイン音声</span><input id="voiceInput" type="checkbox" checked></label>
       <label class="setting-row"><span>読み上げ演出</span><select id="voiceStyleInput"><option value="emotional">熱演する政治家風（端末音声）</option><option value="standard">通常の読み上げ</option></select></label>
     </div>
+    <div class="voice-upload">
+      <strong>カットイン音声の登録（この端末のみ）</strong>
+      <p>しぬしぬボイス等で適正な利用権限のある音声を生成・保存した場合、対応するセリフをここから登録できます。</p>
+      <label>対象のセリフ<select id="voiceSceneInput"></select></label>
+      <label>音声ファイル<input id="voiceFileInput" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg"></label>
+      <div class="voice-buttons"><button type="button" id="voiceSaveBtn" class="primary-btn">音声を登録</button><button type="button" id="voiceDeleteBtn" class="secondary-btn">登録を消去</button></div>
+      <p id="voiceFileStatus" role="status" aria-live="polite">登録した音声はブラウザ内に保存されます。</p>
+      <a href="https://fish.audio/ja/m/337265f681534137b41e4a45d329b81f/" target="_blank" rel="noopener noreferrer">しぬしぬボイスの提供ページ（Fish Audio）</a>
+    </div>
     <p class="setting-footnote">「しぬしぬボイス」の音声は正規の利用許諾・音声ファイルが確認できていないため未収録です。録音素材を正規に用意した場合は assets/voices/ に置くことで優先再生できます。現在は情熱的な読み上げ風に調整した端末音声を使用します。</p>
     <p class="setting-footnote">音声には端末の日本語音声読み上げを使用します。音声の種類や対応状況はOS・ブラウザによって異なります。着手SEは碁石と木製碁盤の衝撃・共鳴を模した内蔵音です。</p>
     <p class="setting-footnote">バイブレーションは対応端末のみ有効です。iPhoneのWebブラウザでは作動しない場合があります。</p>
