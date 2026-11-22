@@ -1,6 +1,7 @@
 import { GoGame } from "./go-engine.js";
 import { levels, chooseCpuMove, suggest } from "./ai.js";
 import { createEffects } from "./effects.js";
+import { voiceScenes, saveClip, deleteClip } from "./voice-clips.js";
 
 const $ = id => document.getElementById(id);
 const STORAGE = "ikan_go_v1";
@@ -796,6 +797,22 @@ function wire() {
   $("cutinInput").onchange=e=>{settings.cutin=e.target.checked;saveSettings();};
   $("voiceInput").onchange=e=>{settings.voice=e.target.checked;saveSettings();};
   $("voiceStyleInput").onchange=e=>{settings.voiceStyle=e.target.value;saveSettings();};
+  $("voiceSaveBtn").onclick=async ()=>{
+    const scene=$("voiceSceneInput").value, file=$("voiceFileInput").files?.[0];
+    if(!file){$("voiceFileStatus").textContent="音声ファイルを選択してください。";return;}
+    try{
+      await saveClip(scene,file);
+      $("voiceFileStatus").textContent="「"+voiceScenes[scene]+"」の音声を登録しました。";
+      toast("音声をこのiPhoneに登録しました。");
+    }catch(err){$("voiceFileStatus").textContent="登録できませんでした："+err.message;}
+  };
+  $("voiceDeleteBtn").onclick=async ()=>{
+    const scene=$("voiceSceneInput").value;
+    try{
+      await deleteClip(scene);
+      $("voiceFileStatus").textContent="「"+voiceScenes[scene]+"」の登録を取り消しました。";
+    }catch(err){$("voiceFileStatus").textContent="削除できませんでした："+err.message;}
+  };
   const canvas=$("boardCanvas");
   canvas.addEventListener("pointerdown",onPointerDown);
   canvas.addEventListener("pointermove",onPointerMove);
@@ -840,6 +857,7 @@ function initialize(){
     if(!["fast","normal","slow"].includes(settings.speed))settings.speed="normal";
   }
   $("levelSelect").innerHTML=levels.map(l=>'<option value="'+l.value+'">'+l.label+'</option>').join("");
+  $("voiceSceneInput").innerHTML=Object.entries(voiceScenes).map(([id,name])=>'<option value="'+id+'">'+name+'</option>').join("");
   const saved=safeParse(STORAGE);
   if(saved&&saved.game){
     try {
