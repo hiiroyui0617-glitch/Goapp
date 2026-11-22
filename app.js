@@ -537,14 +537,30 @@ function influenceBase() {
   return values;
 }
 function drawTerritory(ctx,m,regions) {
-  for (const [key,color] of [["1","#29465439"],["2","#f0f3ec9a"]]) {
-    ctx.fillStyle = color;
-    for (const id of regions[key]) {
-      const p=boardToView(id%game.size,Math.floor(id/game.size));
-      ctx.fillRect(m.padding+(p.x-.49)*m.cell,m.padding+(p.y-.49)*m.cell,m.cell*.98,m.cell*.98);
+  // Black-owned points: charcoal tile and solid black dot.
+  // White-owned points: ivory tile and white dot with a black border.
+  // The color is encoded by two distinct marker styles (not hue alone).
+  for (const [owner,fill] of [["1","rgba(15,22,30,.20)"],["2","rgba(255,255,255,.50)"]]) {
+    for (const id of regions[owner]) {
+      if (game.board[id] && !ui.dead.has(id)) continue;
+      const v = boardToView(id%game.size,Math.floor(id/game.size));
+      const px=m.padding+v.x*m.cell,py=m.padding+v.y*m.cell;
+      ctx.fillStyle=fill;
+      const box=m.cell*.84;
+      ctx.fillRect(px-box/2,py-box/2,box,box);
+      ctx.save();
+      ctx.shadowColor="rgba(0,0,0,.30)";
+      ctx.shadowBlur=Math.max(1,m.cell*.12);
+      ctx.fillStyle=owner==="1"?"#101922":"#fffdf4";
+      ctx.strokeStyle=owner==="1"?"#ffffff":"#1d2a33";
+      ctx.lineWidth=Math.max(1.5,m.cell*.09);
+      ctx.beginPath();ctx.arc(px,py,m.cell*.22,0,Math.PI*2);
+      ctx.fill();ctx.stroke();
+      ctx.restore();
     }
   }
 }
+
 function drawBeginner(ctx,m) {
   const base = influenceBase();
   const n=game.size, cand=ui.preview, color=game.turn;
@@ -604,8 +620,7 @@ function drawBoard() {
   ctx.strokeStyle="#936b3f";
   ctx.lineWidth=1.2;
   ctx.strokeRect(p-edge,p-edge,(n-1)*c+edge*2,(n-1)*c+edge*2);
-  if (ui.scoring) drawTerritory(ctx,m,game.score(ui.dead).regions);
-  else if (ui.novice) drawBeginner(ctx,m);
+  if (ui.novice && !ui.scoring) drawBeginner(ctx,m);
   ctx.beginPath();
   for(let i=0;i<n;i++){
     const k=p+i*c;
@@ -618,6 +633,7 @@ function drawBoard() {
     const v=boardToView(x,y);
     ctx.beginPath();ctx.arc(p+v.x*c,p+v.y*c,Math.max(2,w*.0048),0,Math.PI*2);ctx.fill();
   }
+  if (ui.scoring) drawTerritory(ctx,m,game.score(ui.dead).regions);
   // Numeric column labels, kanji row labels, following the reference screen.
   ctx.font="600 "+Math.max(9,Math.min(14,w*.028))+"px sans-serif";
   ctx.fillStyle="#593c1b";
