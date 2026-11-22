@@ -233,7 +233,7 @@ function rankedWithReplySearch(game,color,moves,level){
       // Opponent plays the reply that hurts our evaluated position most.
       let next=evaluate(future,color)-before;
       // Losing the stone we just placed the very next move is very bad.
-      if(future.board[future.index(m.x,m.y)]!==color)next-=Math.max(8,12*m.captured?0:0);
+      if(future.board[future.index(m.x,m.y)]!==color)next-=16;
       worst=Math.min(worst,next);
     }
     const tacticalWeight=level>=12?.42:.32;
