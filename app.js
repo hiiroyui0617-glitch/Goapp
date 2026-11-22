@@ -831,7 +831,17 @@ function initialize(){
   wire();
   showHome();
   if("serviceWorker" in navigator && location.protocol!=="file:"){
-    window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+    window.addEventListener("load",()=>{
+      navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).then(reg=>{
+        reg.update().catch(()=>{});
+        let refreshed=false;
+        navigator.serviceWorker.addEventListener("controllerchange",()=>{
+          if(refreshed)return;
+          refreshed=true;
+          window.location.reload();
+        });
+      }).catch(()=>{});
+    });
   }
 }
 initialize();
