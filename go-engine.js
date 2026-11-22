@@ -66,7 +66,7 @@ export class GoGame {
     if (own.liberties.size === 0) return { ok: false, reason: "自殺手は禁止されています。" };
     const key = this.key(next);
     if (checkSuperko && this.positionKeys.includes(key))
-      return { ok: false, reason: "コウ：同じ盤面の再現はできません。" };
+      return { ok: false, reason: "コウ：同じ答弁（盤面）の繰り返しは認められません。" };
     return { ok: true, board: next, captured, liberties: own.liberties.size, groupSize: own.stones.length, key };
   }
 
