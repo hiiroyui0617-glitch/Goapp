@@ -1,3 +1,4 @@
+import {loadClip} from "./voice-clips.js";
 // Original sound and spoken cut-in system. No third-party game audio
 // or imitation of a recognizable actor/politician is used.
 // Acoustic model: sharp stone impact + damped wooden board resonance.
@@ -23,6 +24,7 @@ export function createEffects(getSettings) {
   let lastCutin = 0;
   let currentVoice = null;
   let recordedAudio = null;
+  let recordedObjectUrl = null;
   let voices = [];
   const synth = typeof window !== "undefined" ? window.speechSynthesis : null;
   function loadVoices() {
@@ -142,6 +144,7 @@ export function createEffects(getSettings) {
     clearTimeout(cutinTimeout);
     currentVoice=null;
     if(recordedAudio){try{recordedAudio.pause();recordedAudio.src="";}catch{} recordedAudio=null;}
+    if(recordedObjectUrl){URL.revokeObjectURL(recordedObjectUrl);recordedObjectUrl=null;}
     try{synth?.cancel();}catch{}
     const el=document.getElementById("cutin");
     if(el){el.hidden=true;el.classList.remove("cutin-visible","cutin-exit","has-art");}
@@ -171,20 +174,24 @@ export function createEffects(getSettings) {
     }
     const end=()=>finish(version,options.onDone);
     let deviceSpeechStarted = false;
-    // If the owner has supplied a properly licensed recording for this
-    // event, prefer it. No real-person voice cloning is distributed here.
-    // On a missing asset or blocked playback, use animated device speech.
+    // Files are provided by the user on this device. No cloud API keys,
+    // unlicensed imitation models, or downloaded voice clones are included.
     if(settings.voice!==false && Number(settings.volume)>0 &&
        options.kind && assets[options.kind] && typeof Audio!=="undefined") {
-      const a=new Audio("./assets/voices/"+options.kind+".mp3");
-      a.preload="auto";
-      a.volume=Math.max(0,Math.min(1,Number(settings.volume)/100));
-      recordedAudio=a;
-      const completed=()=>{if(version===queueVersion)end();};
-      a.onended=completed;
-      a.onerror=()=>{if(version===queueVersion)startDeviceSpeech();};
-      a.play().catch(()=>{if(version===queueVersion)startDeviceSpeech();});
-      cutinTimeout=setTimeout(()=>{if(version===queueVersion)startDeviceSpeech();},5000);
+      loadClip(options.kind).then(blob=>{
+        if(version!==queueVersion)return;
+        if(!blob){startDeviceSpeech();return;}
+        try {
+          recordedObjectUrl=URL.createObjectURL(blob);
+          const a=new Audio(recordedObjectUrl);
+          recordedAudio=a;
+          a.volume=Math.min(1,Number(settings.volume)/100);
+          a.onended=()=>{if(version===queueVersion)end();};
+          a.onerror=()=>startDeviceSpeech();
+          a.play().catch(startDeviceSpeech);
+          cutinTimeout=setTimeout(startDeviceSpeech,22000);
+        } catch {startDeviceSpeech();}
+      }).catch(startDeviceSpeech);
       return;
     }
     startDeviceSpeech();
@@ -193,6 +200,7 @@ export function createEffects(getSettings) {
       deviceSpeechStarted=true;
       clearTimeout(cutinTimeout);
       if(recordedAudio){try{recordedAudio.pause();}catch{}recordedAudio=null;}
+      if(recordedObjectUrl){URL.revokeObjectURL(recordedObjectUrl);recordedObjectUrl=null;}
       if(settings.voice===false||Number(settings.volume)===0||!synth||
        typeof SpeechSynthesisUtterance==="undefined"){
       cutinTimeout=setTimeout(end,visualEnabled?1600:0);
