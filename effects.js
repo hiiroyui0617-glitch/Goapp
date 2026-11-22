@@ -8,7 +8,13 @@ export function createEffects(getSettings) {
     fall: "./assets/cutins/fall.svg",
     win: "./assets/cutins/win.svg",
     lose: "./assets/cutins/lose.svg",
-    undo: "./assets/cutins/undo.svg"
+    undo: "./assets/cutins/undo.svg",
+    pass: "./assets/cutins/pass.svg",
+    illegal: "./assets/cutins/illegal.svg",
+    hint: "./assets/cutins/hint.svg",
+    score: "./assets/cutins/score.svg",
+    start: "./assets/cutins/start.svg",
+    novice: "./assets/cutins/novice.svg"
   };
   let audioContext = null;
   let buffers = [];
@@ -16,6 +22,7 @@ export function createEffects(getSettings) {
   let cutinTimeout = 0;
   let lastCutin = 0;
   let currentVoice = null;
+  let recordedAudio = null;
   let voices = [];
   const synth = typeof window !== "undefined" ? window.speechSynthesis : null;
   function loadVoices() {
@@ -134,6 +141,7 @@ export function createEffects(getSettings) {
     queueVersion++;
     clearTimeout(cutinTimeout);
     currentVoice=null;
+    if(recordedAudio){try{recordedAudio.pause();recordedAudio.src="";}catch{} recordedAudio=null;}
     try{synth?.cancel();}catch{}
     const el=document.getElementById("cutin");
     if(el){el.hidden=true;el.classList.remove("cutin-visible","cutin-exit","has-art");}
@@ -162,7 +170,28 @@ export function createEffects(getSettings) {
       el.classList.add("cutin-visible");
     }
     const end=()=>finish(version,options.onDone);
-    if(settings.voice===false||Number(settings.volume)===0||!synth||
+    // If the owner has supplied a properly licensed recording for this
+    // event, prefer it. No real-person voice cloning is distributed here.
+    // On a missing asset or blocked playback, use animated device speech.
+    if(settings.voice!==false && Number(settings.volume)>0 &&
+       options.kind && assets[options.kind] && typeof Audio!=="undefined") {
+      const a=new Audio("./assets/voices/"+options.kind+".mp3");
+      a.preload="auto";
+      a.volume=Math.max(0,Math.min(1,Number(settings.volume)/100));
+      recordedAudio=a;
+      const completed=()=>{if(version===queueVersion)end();};
+      a.onended=completed;
+      a.onerror=()=>{if(version===queueVersion)startDeviceSpeech();};
+      a.play().catch(()=>{if(version===queueVersion)startDeviceSpeech();});
+      cutinTimeout=setTimeout(()=>{if(version===queueVersion)startDeviceSpeech();},5000);
+      return;
+    }
+    startDeviceSpeech();
+    function startDeviceSpeech() {
+      if(version!==queueVersion)return;
+      clearTimeout(cutinTimeout);
+      if(recordedAudio){try{recordedAudio.pause();}catch{}recordedAudio=null;}
+      if(settings.voice===false||Number(settings.volume)===0||!synth||
        typeof SpeechSynthesisUtterance==="undefined"){
       cutinTimeout=setTimeout(end,visualEnabled?1600:0);
       return;
@@ -172,8 +201,10 @@ export function createEffects(getSettings) {
       const u=new SpeechSynthesisUtterance(phrase);
       currentVoice=u;
       u.lang="ja-JP";
-      u.rate=.93;
-      u.pitch=.88;
+      const energetic = settings.voiceStyle !== "standard";
+      const dramatic = ["rise","fall","win","lose","illegal"].includes(options.kind);
+      u.rate=energetic ? (dramatic ? 1.13 : 1.02) : .93;
+      u.pitch=energetic ? (dramatic ? 1.25 : 1.09) : .88;
       u.volume=Math.min(1,Number(settings.volume)/100);
       const japanese=voices.find(v=>v.lang?.toLowerCase().startsWith("ja"));
       if(japanese)u.voice=japanese;
@@ -193,6 +224,7 @@ export function createEffects(getSettings) {
     } catch(err) {
       console.warn("Japanese TTS unavailable",err);
       cutinTimeout=setTimeout(end,1700);
+    }
     }
   }
   return {sound,unlock,cutin,stop};
