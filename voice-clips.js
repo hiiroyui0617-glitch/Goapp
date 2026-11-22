@@ -55,11 +55,11 @@ const VOICE_ITEM_LIMIT = 8 * 1024 * 1024;
  * A previous voice pack remains intact if extraction or validation fails.
  * skip.mp3 is accepted as the user's synonym for pass.mp3.
  */
-export async function importVoiceZip(file, onProgress=()=>{}) {
+export async function extractVoiceZip(file, ZipReader, onProgress=()=>{}) {
   if (!file || !(file instanceof Blob)) throw new Error("ZIPファイルを選択してください。");
   if (file.size > VOICE_PACK_LIMIT) throw new Error("ZIPが20MBを超えています。");
-  if (typeof window==="undefined" || !window.JSZip) throw new Error("ZIP読み込み機能が利用できません。ページを再読み込みしてください。");
-  const zip=await window.JSZip.loadAsync(file,{checkCRC32:true,createFolders:false});
+  if (!ZipReader?.loadAsync) throw new Error("ZIP読み込み機能が利用できません。ページを再読み込みしてください。");
+  const zip=await ZipReader.loadAsync(file,{checkCRC32:true,createFolders:false});
   const entries=new Map();
   zip.forEach((path,entry)=>{
     if(entry.dir)return;
@@ -89,6 +89,12 @@ export async function importVoiceZip(file, onProgress=()=>{}) {
     finished++;
     onProgress(finished,VOICE_SCENE_IDS.length,id);
   }
+  return decoded;
+}
+
+export async function importVoiceZip(file, onProgress=()=>{}) {
+  const reader=typeof window==="undefined" ? null : window.JSZip;
+  const decoded=await extractVoiceZip(file,reader,onProgress);
   const db=await database();
   return await new Promise((resolve,reject)=>{
     const tx=db.transaction(STORE,"readwrite");
