@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --check app.js && node --check effects.js && node --check voice-clips.js && node --check ai-worker.js && node --test tests/*.test.mjs"
   },
   "description": "Political-parody offline Go board game for the web"
 }
