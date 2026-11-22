@@ -14,7 +14,6 @@ let cpuTimer = null;
 let toastTimer = null;
 let lastTick = Date.now();
 let audioContext = null;
-let undoAnnounced = false;
 const ui = { preview: null, dragging: false, pointerId: null, novice: false,
   scoring: false, dead: new Set(), hint: null, baseCache: null, drawQueued: false };
 let confirmCallback = null;
@@ -189,7 +188,7 @@ function play(x, y) {
   ui.baseCache = null;
   sound(result.captured ? "capture" : "place");
   vibrate();
-  if (result.captured) toast(result.captured + "子を確保。これは適切な行政執行です。");
+  if (result.captured) toast(result.captured >= 5 ? "支持基盤が大きく揺らぎました。（" + result.captured + "子取り）" : result.captured + "子を確保。これは適切な行政執行です。");
   ui.preview = null;
   update();
   scheduleCpu();
@@ -315,7 +314,8 @@ function finishScoring() {
     update();
     const winner = score.lead > 0 ? "黒" : score.lead < 0 ? "白" : null;
     const margin = Math.abs(score.lead).toFixed(1).replace(/\.0$/, "");
-    const title = winner ? margin >= 20 ? "誠に遺憾です。" : "審議の結果、決着しました。" : "議決は同数です。";
+    const humanLost = config.mode === "cpu" && winner && ((winner === "黒" && config.humanColor === 2) || (winner === "白" && config.humanColor === 1));
+    const title = !winner ? "議決は同数です。" : humanLost ? (Number(margin) >= 20 ? "誠に遺憾です。" : "遺憾です。") : "審議の結果、可決されました。";
     showResult(title, winner
       ? winner + "の" + margin + "目勝ち。黒" + score.black + "目 ／ 白" + score.white + "目（コミ" + game.komi + "目を含む）。"
       : "持碁です。両者の主張が一致しました。");
@@ -579,7 +579,7 @@ function drawBoard() {
     const id=game.index(x,y), color=game.board[id];
     if(!color)continue;
     const v=boardToView(x,y), sx=p+v.x*c,sy=p+v.y*c;
-    stone(ctx,sx,sy,r,color,ui.dead.has(id)&&ui.scoring?.42:1);
+    stone(ctx,sx,sy,r,color,(ui.scoring && ui.dead.has(id)) ? 0.42 : 1);
     if (ui.scoring && ui.dead.has(id)) {
       ctx.save();ctx.strokeStyle="#dc4c3d";ctx.lineWidth=Math.max(2,c*.14);
       ctx.beginPath();ctx.moveTo(sx-r*.42,sy-r*.42);ctx.lineTo(sx+r*.42,sy+r*.42);
