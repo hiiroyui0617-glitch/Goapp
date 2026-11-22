@@ -87,12 +87,14 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <div id="cutin" class="cutin" aria-live="polite" aria-atomic="true" hidden>
-    <div class="cutin-diagonals" aria-hidden="true"></div>
-    <div class="cutin-panel">
-      <span class="cutin-eyebrow" id="cutinLabel">緊急記者会見</span>
-      <div id="cutinText" class="cutin-text">記憶にございません。</div>
-      <span id="cutinSub" class="cutin-sub">議事録を修正しました。</span>
+  <div id="cutin" class="cutin" role="status" aria-live="polite" aria-atomic="true" hidden>
+    <div class="cutin-stage">
+      <img id="cutinArt" class="cutin-art" src="./assets/cutins/undo.svg" alt="" draggable="false" hidden>
+      <div class="cutin-panel">
+        <span class="cutin-eyebrow" id="cutinLabel">緊急記者会見</span>
+        <div id="cutinText" class="cutin-text">記憶にございません。</div>
+        <span id="cutinSub" class="cutin-sub">議事録を修正しました。</span>
+      </div>
     </div>
   </div>
 
@@ -133,7 +135,7 @@
       <label class="setting-row"><span>政治家風カットイン</span><input id="cutinInput" type="checkbox" checked></label>
       <label class="setting-row"><span>カットイン音声</span><input id="voiceInput" type="checkbox" checked></label>
     </div>
-    <p class="setting-footnote">音声には端末の日本語音声読み上げを使用します。音声の種類や対応状況はOS・ブラウザによって異なります。SEはCC0音源を優先し、通信できない場合は内蔵合成音に切り替えます。</p>
+    <p class="setting-footnote">音声には端末の日本語音声読み上げを使用します。音声の種類や対応状況はOS・ブラウザによって異なります。着手SEは碁石と木製碁盤の衝撃・共鳴を模した内蔵音です。</p>
     <p class="setting-footnote">バイブレーションは対応端末のみ有効です。iPhoneのWebブラウザでは作動しない場合があります。</p>
     <button id="settingsDoneBtn" type="button" class="primary-btn submit-btn">設定を適用</button>
   </dialog>
