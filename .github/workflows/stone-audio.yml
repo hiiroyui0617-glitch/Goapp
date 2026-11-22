@@ -1,0 +1,24 @@
+name: Prepare authentic Go stone sound (CC0)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - scripts/prepare-stone-audio.py
+      - .github/workflows/stone-audio.yml
+permissions:
+  contents: write
+jobs:
+  build-recording:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Convert CC0 real Go recording to five short samples
+        run: python scripts/prepare-stone-audio.py
+      - name: Publish short samples to repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/audio/
+          git diff --cached --quiet || (git commit -m "assets: add recorded CC0 Go stone hits" && git push)
