@@ -17,42 +17,74 @@ let lastTick = Date.now();
 const effects = createEffects(() => settings);
 let worker = null;
 let workerRequest = 0;
+let workerWatchdog = null;
 function cancelAi() {
-  if (worker) { worker.terminate(); worker = null; }
+  clearTimeout(workerWatchdog);
+  workerWatchdog = null;
+  if (worker) {
+    try { worker.terminate(); } catch {}
+    worker = null;
+  }
   workerRequest++;
 }
 function askAi(action, level, callback) {
   cancelAi();
   const id = workerRequest;
-  const snapshot = game.toJSON();
-  const fallback = () => {
-    try {
-      callback(action === "hint" ? suggest(game) : chooseCpuMove(game, level));
-    } catch(e) { console.warn("CPU calculation failed", e); callback(null); }
+  const position = game;
+  // Keep a lightweight immutable snapshot; sending the full undo history to
+  // an iPhone Web Worker can be slow enough to make the opponent appear stuck.
+  const state = {
+    size: game.size, komi: game.komi, board: game.board.slice(),
+    turn: game.turn, captures: {...game.captures},
+    positionKeys: game.positionKeys.slice(),
+    moves: game.moves.slice(), snapshots: [],
+    passes: game.passes, finished: game.finished
   };
+  let settled = false;
+  const finish = move => {
+    if (settled || id !== workerRequest || game !== position) return;
+    settled = true;
+    cancelAi();
+    callback(move);
+  };
+  const fallback = () => {
+    if (settled || id !== workerRequest || game !== position) return;
+    // Crucial for iPhone/Safari: if module Workers stall, time out and still
+    // play a legal move. The fallback avoids the expensive full reply search.
+    try {
+      const easy = action === "hint" ? "10" : (
+        level === "dan1" || level === "dan2" ? "10" : level
+      );
+      const move = chooseCpuMove(game, easy);
+      finish(move);
+    } catch (err) {
+      console.warn("AI fallback failed:", err);
+      const first = game.board.findIndex((v,i) => v === 0 &&
+        game.simulate(i % game.size, Math.floor(i / game.size)).ok);
+      finish(first >= 0 ? {x:first % game.size,y:Math.floor(first / game.size)} : null);
+    }
+  };
+  workerWatchdog = setTimeout(fallback, 3500);
   if (typeof Worker === "undefined") {
     setTimeout(fallback, 0);
     return;
   }
   try {
-    worker = new Worker("./ai-worker.js", { type: "module" });
+    worker = new Worker(new URL("./ai-worker.js", import.meta.url), { type: "module" });
     worker.onmessage = event => {
-      if (event.data?.id !== id || id !== workerRequest) return;
-      const data=event.data;
-      cancelAi();
-      if (data.ok) callback(data.move);
-      else fallback();
+      if (id !== workerRequest || settled) return;
+      if (event.data?.id !== id || !event.data?.ok) { fallback(); return; }
+      finish(event.data.move);
     };
-    worker.onerror = () => {
-      if (id !== workerRequest) return;
-      cancelAi();
-      setTimeout(fallback,0);
+    worker.onerror = event => {
+      console.warn("AI worker failed; switching to safe CPU.", event?.message);
+      fallback();
     };
-    worker.postMessage({id, action, level, game:snapshot});
-  } catch (e) {
-    console.warn("Web Worker unavailable",e);
-    cancelAi();
-    setTimeout(fallback,0);
+    worker.onmessageerror = fallback;
+    worker.postMessage({id, action, level, game:state});
+  } catch (err) {
+    console.warn("AI Worker unavailable; switching to safe CPU.",err);
+    setTimeout(fallback, 0);
   }
 }
 const ui = { preview: null, dragging: false, pointerId: null, novice: false,
@@ -128,6 +160,7 @@ function showGame() {
 }
 function startNewGame(e) {
   e.preventDefault();
+  effects.unlock?.();
   clearTimeout(cpuTimer);
   cancelAi();
   effects.stop();
@@ -441,6 +474,7 @@ function onPointerDown(e) {
   if (!game || home) return;
   if (e.button !== undefined && e.button !== 0) return;
   e.preventDefault();
+  effects.unlock?.();
   if (!ui.scoring && !canPlay()) return;
   ui.dragging = true;
   ui.pointerId = e.pointerId;
@@ -748,7 +782,7 @@ function wire() {
   canvas.addEventListener("keydown",onKeyboardBoard);
   canvas.addEventListener("contextmenu",e=>e.preventDefault());
   window.addEventListener("resize",requestDraw);
-  document.addEventListener("visibilitychange",()=>lastTick=Date.now());
+  document.addEventListener("visibilitychange",()=>{lastTick=Date.now(); if(!document.hidden && isCpuTurn()) scheduleCpu();});
   setInterval(()=>{
     const now=Date.now(),dt=Math.min(2,Math.max(0,(now-lastTick)/1000));
     lastTick=now;
