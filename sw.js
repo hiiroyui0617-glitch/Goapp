@@ -1,5 +1,5 @@
-const CACHE = "ikan-go-v1";
-const ASSETS = ["./","./index.html","./styles.css","./app.js","./go-engine.js","./ai.js","./icon.svg","./manifest.webmanifest"];
+const CACHE = "ikan-go-v2";
+const ASSETS = ["./","./index.html","./styles.css","./app.js","./go-engine.js","./ai.js","./ai-worker.js","./effects.js","./icon.svg","./manifest.webmanifest"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
