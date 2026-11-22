@@ -1,0 +1,19 @@
+{
+  "name": "その一手、いかんです。",
+  "short_name": "いかんです。",
+  "description": "囲碁に、説明責任を。政治風ユーモアを楽しむ囲碁アプリ。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5ebd6",
+  "theme_color": "#152b42",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
