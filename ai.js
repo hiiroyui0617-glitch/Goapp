@@ -27,25 +27,38 @@ function groups(game,board=game.board){
 // Invasions into such regions are suppressed unless the move captures stones.
 // This avoids futile re-entry in captured enemy territory.
 export function surroundedRegions(game){
-  const size=game.board.length,b=game.board,owner=new Int8Array(size),seen=new Uint8Array(size);
+  const size=game.board.length, n=game.size, b=game.board;
+  const owner=new Int8Array(size), seen=new Uint8Array(size);
   for(let i=0;i<size;i++){
     if(b[i]||seen[i])continue;
-    const todo=[i],border=new Set(),spots=[];
+    const todo=[i],borders=new Set(),spots=[],edgeSides=new Set();
     seen[i]=1;
     for(let j=0;j<todo.length;j++){
-      const point=todo[j];spots.push(point);
+      const point=todo[j],x=point%n,y=(point/n)|0;
+      spots.push(point);
+      if(x===0)edgeSides.add("left");
+      if(x===n-1)edgeSides.add("right");
+      if(y===0)edgeSides.add("top");
+      if(y===n-1)edgeSides.add("bottom");
       for(const q of game.neighbors(point)){
-        if(b[q]&&b[q]!==0)border.add(b[q]);
-        else if(!b[q]&&!seen[q]){seen[q]=1;todo.push(q);}
+        if(b[q]!==0)borders.add(b[q]);
+        else if(!seen[q]){seen[q]=1;todo.push(q);}
       }
     }
-    if(border.size===1){
-      const val=[...border][0];
+    // An empty sea covering most of an unplayed board and touching 3-4
+    // edges is not a secure, enclosed territory. Do not forbid invasions
+    // there just because all currently visible border stones are one color.
+    // Only apply the re-entry ban to modest, convincingly enclosed pockets.
+    if(borders.size===1 &&
+       spots.length<=Math.max(8,Math.floor(size*.28)) &&
+       edgeSides.size<=2){
+      const val=[...borders][0];
       spots.forEach(p=>{owner[p]=val;});
     }
   }
   return owner;
 }
+
 function opening(game,x,y,color,occupied){
   if(occupied.length>Math.max(14,game.size*1.1))return 0;
   const n=game.size,s=n===19?3:n===13?3:2;
