@@ -240,3 +240,67 @@ button:focus-visible, select:focus-visible, input:focus-visible, canvas:focus-vi
 @media(prefers-reduced-motion:reduce) {
   .cutin.cutin-animate, .cutin.cutin-animate .cutin-panel { animation:none !important; opacity:1; }
 }
+
+
+/* v3: character slide-in from bottom, stay up until voice end */
+.cutin {
+  z-index:2800;
+  inset:0; width:100%; height:100dvh;
+  pointer-events:none; isolation:isolate;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; background:rgba(2,10,24,.20);
+}
+.cutin::before, .cutin-diagonals { display:none !important; }
+.cutin-stage {
+  width:min(100vw,940px); max-width:940px;
+  aspect-ratio:1024/530; display:block; position:relative;
+  transform:translate3d(0,110vh,0) rotate(-3deg);
+  opacity:0;
+  filter:drop-shadow(0 16px 26px rgba(0,0,0,.6));
+  will-change:transform,opacity;
+  transition:transform .36s cubic-bezier(.15,1.12,.31,1),
+    opacity .20s ease;
+}
+.cutin.cutin-visible .cutin-stage {
+  transform:translate3d(0,0,0) rotate(0);
+  opacity:1;
+}
+.cutin.cutin-exit .cutin-stage {
+  transform:translate3d(0,105vh,0) rotate(-4deg);
+  opacity:0;
+  transition:transform .23s ease-in,opacity .18s ease-in;
+}
+.cutin-art {
+  display:block; width:100%; height:100%;
+  object-fit:contain; user-select:none;
+}
+.cutin-panel {
+  position:absolute; bottom:4%; left:8%; right:8%;
+  transform:none; width:auto; z-index:1;
+  text-align:center; padding:4px 10px;
+  background:rgba(15,18,34,.76);
+  border-top:2px solid #ffe9b9;
+  border-bottom:2px solid #8c2930;
+}
+.cutin-eyebrow { display:none; }
+.cutin-text { font-size:clamp(24px,6.5vw,52px); line-height:1.45; }
+.cutin.has-art .cutin-text { display:none; }
+.cutin-sub { font-size:clamp(10px,2.3vw,15px); line-height:1.4; }
+.cutin:not(.has-art) .cutin-panel {
+  bottom:30%; left:3%; right:3%;
+  background:linear-gradient(110deg,#932027,#d5532b);
+  border:4px solid white; box-shadow:0 6px 18px #0008;
+}
+.cutin:not(.has-art) .cutin-eyebrow {display:block;}
+.cutin.cutin-visible, .cutin.cutin-visible .cutin-panel {
+  animation:none !important;
+}
+@media(max-width:520px) {
+ .cutin {height:100dvh;top:0;}
+ .cutin-stage {width:100vw;}
+ .cutin-panel {bottom:1%;padding:3px 4px;left:5%;right:5%;}
+ .cutin-sub {font-size:10px;}
+}
+@media(prefers-reduced-motion:reduce){
+ .cutin-stage {transition:opacity .15s linear;transform:none !important;}
+}
