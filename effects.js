@@ -178,9 +178,11 @@ export function createEffects(getSettings) {
     // unlicensed imitation models, or downloaded voice clones are included.
     if(settings.voice!==false && Number(settings.volume)>0 &&
        options.kind && assets[options.kind] && typeof Audio!=="undefined") {
+      cutinTimeout=setTimeout(startDeviceSpeech,1400);
       loadClip(options.kind).then(blob=>{
-        if(version!==queueVersion)return;
+        if(version!==queueVersion||deviceSpeechStarted)return;
         if(!blob){startDeviceSpeech();return;}
+        clearTimeout(cutinTimeout);
         try {
           recordedObjectUrl=URL.createObjectURL(blob);
           const a=new Audio(recordedObjectUrl);
