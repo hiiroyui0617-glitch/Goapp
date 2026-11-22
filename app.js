@@ -1,10 +1,11 @@
 import { GoGame } from "./go-engine.js";
 import { levels, chooseCpuMove, suggest } from "./ai.js";
+import { createEffects } from "./effects.js";
 
 const $ = id => document.getElementById(id);
 const STORAGE = "ikan_go_v1";
 const SETTINGS = "ikan_go_settings_v1";
-const defaults = { volume: 50, flip: false, vibration: true, lastMove: true, speed: "normal" };
+const defaults = { volume: 50, flip: false, vibration: true, lastMove: true, speed: "normal", cutin: true, voice: true };
 let settings = {...defaults};
 let game = null;
 let config = { mode: "cpu", level: "15", humanColor: 1, size: 19, komi: 6.5 };
@@ -13,7 +14,47 @@ let home = true;
 let cpuTimer = null;
 let toastTimer = null;
 let lastTick = Date.now();
-let audioContext = null;
+const effects = createEffects(() => settings);
+let worker = null;
+let workerRequest = 0;
+function cancelAi() {
+  if (worker) { worker.terminate(); worker = null; }
+  workerRequest++;
+}
+function askAi(action, level, callback) {
+  cancelAi();
+  const id = workerRequest;
+  const snapshot = game.toJSON();
+  const fallback = () => {
+    try {
+      callback(action === "hint" ? suggest(game) : chooseCpuMove(game, level));
+    } catch(e) { console.warn("CPU calculation failed", e); callback(null); }
+  };
+  if (typeof Worker === "undefined") {
+    setTimeout(fallback, 0);
+    return;
+  }
+  try {
+    worker = new Worker("./ai-worker.js", { type: "module" });
+    worker.onmessage = event => {
+      if (event.data?.id !== id || id !== workerRequest) return;
+      const data=event.data;
+      cancelAi();
+      if (data.ok) callback(data.move);
+      else fallback();
+    };
+    worker.onerror = () => {
+      if (id !== workerRequest) return;
+      cancelAi();
+      setTimeout(fallback,0);
+    };
+    worker.postMessage({id, action, level, game:snapshot});
+  } catch (e) {
+    console.warn("Web Worker unavailable",e);
+    cancelAi();
+    setTimeout(fallback,0);
+  }
+}
 const ui = { preview: null, dragging: false, pointerId: null, novice: false,
   scoring: false, dead: new Set(), hint: null, baseCache: null, drawQueued: false };
 let confirmCallback = null;
@@ -46,27 +87,11 @@ function dialog(id) {
 function closeDialogs() {
   for (const d of document.querySelectorAll("dialog[open]")) d.close();
 }
-function sound(kind = "place") {
-  if (settings.volume === 0) return;
-  try {
-    const Ctor = window.AudioContext || window.webkitAudioContext;
-    if (!Ctor) return;
-    audioContext ||= new Ctor();
-    if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
-    const now = audioContext.currentTime;
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    osc.type = kind === "capture" ? "triangle" : "sine";
-    osc.frequency.setValueAtTime(kind === "capture" ? 330 : 235, now);
-    osc.frequency.exponentialRampToValueAtTime(kind === "capture" ? 125 : 110, now + .085);
-    const vol = (settings.volume / 100) * 0.18;
-    gain.gain.setValueAtTime(vol, now);
-    gain.gain.exponentialRampToValueAtTime(.001, now + .10);
-    osc.connect(gain).connect(audioContext.destination);
-    osc.start(now);
-    osc.stop(now + .11);
-  } catch {}
+function sound(kind = "place") { effects.sound(kind); }
+function cutin(phrase, subtitle, label, force = false) {
+  effects.cutin(phrase, subtitle, label, {force});
 }
+
 function vibrate() {
   if (settings.vibration && navigator.vibrate) {
     try { navigator.vibrate(13); } catch {}
@@ -84,6 +109,8 @@ function showHome() {
   ui.dragging = false;
   ui.preview = null;
   clearTimeout(cpuTimer);
+  cancelAi();
+  effects.stop();
   $("homeScreen").hidden = false;
   $("gameScreen").hidden = true;
   $("resumeBtn").hidden = !game;
@@ -102,6 +129,8 @@ function showGame() {
 function startNewGame(e) {
   e.preventDefault();
   clearTimeout(cpuTimer);
+  cancelAi();
+  effects.stop();
   const form = new FormData($("setupForm"));
   const choice = form.get("color");
   const color = choice === "random" ? (Math.random() < 0.5 ? 1 : 2) : Number(choice);
@@ -183,12 +212,15 @@ function update() {
 function play(x, y) {
   if (!canPlay()) return;
   const result = game.play(x, y);
-  if (!result.ok) { toast(result.reason); sound("capture"); return; }
+  if (!result.ok) { toast(result.reason); cutin("その一手、いかんです。","囲碁規則に反する着手です。","審議差し戻し"); return; }
   ui.hint = null;
   ui.baseCache = null;
   sound(result.captured ? "capture" : "place");
   vibrate();
-  if (result.captured) toast(result.captured >= 5 ? "支持基盤が大きく揺らぎました。（" + result.captured + "子取り）" : result.captured + "子を確保。これは適切な行政執行です。");
+  if (result.captured) {
+    toast(result.captured >= 5 ? "支持基盤が大きく揺らぎました。（" + result.captured + "子取り）" : result.captured + "子を確保。これは適切な行政執行です。");
+    if (result.captured >= 3) cutin("支持基盤が崩壊！", result.captured+"子が一斉に退陣しました。", "緊急速報");
+  }
   ui.preview = null;
   update();
   scheduleCpu();
@@ -196,31 +228,40 @@ function play(x, y) {
 function scheduleCpu() {
   clearTimeout(cpuTimer);
   if (!isCpuTurn()) return;
-  const delay = settings.speed === "fast" ? 140 : settings.speed === "slow" ? 950 : 440;
+  const delay = settings.speed === "fast" ? 150 : settings.speed === "slow" ? 900 : 330;
   cpuTimer = setTimeout(() => {
     if (!isCpuTurn()) return;
-    const choice = chooseCpuMove(game, config.level);
-    if (choice) {
-      const result = game.play(choice.x, choice.y);
-      if (result.ok) sound(result.captured ? "capture" : "place");
-      else game.pass();
-    } else game.pass();
-    ui.hint = null;
-    ui.baseCache = null;
-    update();
-    if (game.finished && game.passes >= 2) {
-      enterScoring();
-      toast("双方パス。地合の審議を始めます。");
-    } else scheduleCpu();
+    const current = game;
+    const key = game.key(game.board), turn = game.turn, moves = game.moves.length;
+    askAi("cpu", config.level, choice => {
+      if (game !== current || !isCpuTurn() || game.turn !== turn ||
+          game.moves.length !== moves || game.key(game.board) !== key) return;
+      if (choice) {
+        const result = game.play(choice.x, choice.y);
+        if (result.ok) {
+          sound(result.captured ? "capture" : "place");
+          if (result.captured >= 4)
+            cutin("説明責任を果たしていただきたい。", "CPUが"+result.captured+"子を確保しました。","緊急記者会見");
+        } else game.pass();
+      } else game.pass();
+      ui.hint = null;
+      ui.baseCache = null;
+      update();
+      if (game.finished && game.passes >= 2) {
+        enterScoring();
+        cutin("審議終了を宣言します。","双方パスにより地合計算へ移行。","閉会宣言",true);
+      } else scheduleCpu();
+    });
   }, delay);
 }
+
 function passTurn() {
   if (!canPlay()) return;
   game.pass();
   ui.hint = null;
   ui.preview = null;
   ui.baseCache = null;
-  sound();
+  cutin("答弁を差し控えます。","パスにより手番を譲ります。","公式答弁");
   update();
   if (game.finished && game.passes >= 2) {
     enterScoring();
@@ -233,6 +274,7 @@ function passTurn() {
 function undoMove() {
   if (!game || home || !game.snapshots.length) return;
   clearTimeout(cpuTimer);
+  cancelAi();
   if (ui.scoring) leaveScoring();
   const last = game.moves.at(-1);
   let count = 1;
@@ -244,19 +286,26 @@ function undoMove() {
   ui.hint = null; ui.preview = null; ui.baseCache = null; ui.dead.clear();
   update();
   toast("記憶にございません。（" + undone + "手前に戻しました）");
+  cutin("記憶にございません。","議事録を"+undone+"手分修正しました。","答弁撤回",true);
   vibrate();
   scheduleCpu();
 }
 function giveHint() {
   if (!canPlay()) return;
-  ui.hint = suggest(game);
-  if (!ui.hint) { toast("有効な着手が見つかりません。パスをご検討ください。"); return; }
-  const m = ui.hint;
-  $("hintText").textContent = "推奨候補：" + (m.x + 1) + "列・" + (m.y + 1) + "行。"
-    + m.reason + "。※ 簡易AIの評価であり、最善手の保証ではありません。";
-  update();
-  toast("専門家の参考意見を提出しました。");
+  const current = game, key = game.key(game.board), turn = game.turn;
+  toast("専門家に見解を照会しています…");
+  askAi("hint","dan2",move => {
+    if (game !== current || !canPlay() || game.turn !== turn ||
+        game.key(game.board) !== key) return;
+    ui.hint = move;
+    if (!ui.hint) { toast("有効な着手がありません。パスをご検討ください。"); return; }
+    $("hintText").textContent = "推奨候補：" + (move.x + 1) + "列・" + (move.y + 1) + "行。"
+      + move.reason + "。※ 局面を先読みした参考候補であり、最善手の保証ではありません。";
+    update();
+    cutin("専門家の意見を採用します。","候補手を盤上に示しました。","参考人招致");
+  });
 }
+
 function toggleNovice() {
   if (!game || home) return;
   ui.novice = !ui.novice;
@@ -268,6 +317,7 @@ function toggleNovice() {
 function enterScoring() {
   if (!game || home) return;
   clearTimeout(cpuTimer);
+  cancelAi();
   ui.scoring = true;
   ui.novice = false;
   ui.hint = null;
@@ -295,6 +345,8 @@ function updateScore() {
   const result = game.score(ui.dead);
   $("scoreBlack").textContent = result.black + "目";
   $("scoreWhite").textContent = result.white + "目";
+  $("scoreBlackDetail").textContent = "地"+result.territories[1]+" ＋ アゲハマ"+result.prisoners[1];
+  $("scoreWhiteDetail").textContent = "地"+result.territories[2]+" ＋ アゲハマ"+result.prisoners[2]+" ＋ コミ"+game.komi;
   $("scoreLead").textContent = (result.lead === 0 ? "持碁（同点）" :
     (result.lead > 0 ? "黒" : "白") + "が" + Math.abs(result.lead).toFixed(1).replace(/\.0$/, "") + "目優勢")
     + " ／ 手動指定した死に石を含みます。";
@@ -344,6 +396,7 @@ function showResult(title, body) {
   $("resultTitle").textContent = title;
   $("resultBody").textContent = body;
   dialog("resultDialog");
+  cutin(title, "対局結果を正式に発表します。","政府見解",true);
 }
 function boardMetrics() {
   const canvas = $("boardCanvas");
@@ -656,6 +709,8 @@ function wire() {
   $("vibrationInput").onchange=e=>{settings.vibration=e.target.checked;saveSettings();};
   $("lastMoveInput").onchange=e=>{settings.lastMove=e.target.checked;saveSettings();requestDraw();};
   $("speedInput").onchange=e=>{settings.speed=e.target.value;saveSettings();scheduleCpu();};
+  $("cutinInput").onchange=e=>{settings.cutin=e.target.checked;saveSettings();};
+  $("voiceInput").onchange=e=>{settings.voice=e.target.checked;saveSettings();};
   const canvas=$("boardCanvas");
   canvas.addEventListener("pointerdown",onPointerDown);
   canvas.addEventListener("pointermove",onPointerMove);
@@ -688,6 +743,8 @@ function fillSettings(){
   $("vibrationInput").checked=settings.vibration;
   $("lastMoveInput").checked=settings.lastMove;
   $("speedInput").value=settings.speed;
+  $("cutinInput").checked=settings.cutin;
+  $("voiceInput").checked=settings.voice;
 }
 function initialize(){
   const savedSettings=safeParse(SETTINGS);
