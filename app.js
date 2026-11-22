@@ -395,8 +395,15 @@ function resign() {
 function showResult(title, body) {
   $("resultTitle").textContent = title;
   $("resultBody").textContent = body;
-  dialog("resultDialog");
+  // Modal dialogs occupy the browser's top layer; display the cut-in BEFORE
+  // the result modal, otherwise its backdrop would conceal the animation.
   cutin(title, "対局結果を正式に発表します。","政府見解",true);
+  const finalGame = game;
+  const openResult = () => {
+    if (game === finalGame && game?.finished && !home) dialog("resultDialog");
+  };
+  if (settings.cutin) setTimeout(openResult, 1520);
+  else openResult();
 }
 function boardMetrics() {
   const canvas = $("boardCanvas");
