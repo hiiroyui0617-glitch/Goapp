@@ -32,6 +32,8 @@ test("image cut-in displays matching artwork until voice finishes", async()=>{
     assert.equal(art.src,"./assets/cutins/rise.svg");
     assert.equal(cutin.hidden,false);
     assert.equal(classes.has("cutin-visible"),true);
+    await new Promise(resolve=>setTimeout(resolve,30)); // IndexedDB miss falls back asynchronously
+    assert.ok(spoken,"Device speech should start when there is no custom MP3");
     assert.equal(spoken.text,"支持率上昇！");
     assert.equal(finished,0);
     spoken.onend();
