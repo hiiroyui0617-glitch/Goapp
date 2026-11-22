@@ -165,6 +165,10 @@ function startNewGame(e) {
   cancelAi();
   effects.stop();
   const form = new FormData($("setupForm"));
+  if(form.get("mode")==="katago"){
+    window.location.href="./katago/";
+    return;
+  }
   const choice = form.get("color");
   const color = choice === "random" ? (Math.random() < 0.5 ? 1 : 2) : Number(choice);
   config = { mode: form.get("mode") === "local" ? "local" : "cpu",
@@ -178,6 +182,7 @@ function startNewGame(e) {
   save();
   showGame();
   toast("新たな審議が始まりました。発言には十分ご注意ください。");
+  cutin("開会を宣言します！","新しい対局を始めます。","本会議",true,"start");
 }
 function showSetup() {
   $("modeSelect").value = config.mode;
@@ -189,9 +194,9 @@ function showSetup() {
   dialog("setupDialog");
 }
 function toggleSetupFields() {
-  const local = $("modeSelect").value === "local";
-  $("levelField").hidden = local;
-  $("colorField").hidden = local;
+  const special = $("modeSelect").value !== "cpu";
+  $("levelField").hidden = special;
+  $("colorField").hidden = special;
 }
 function updateToolbar() {
   const active = Boolean(game && !home);
@@ -245,7 +250,7 @@ function update() {
 function play(x, y) {
   if (!canPlay()) return;
   const result = game.play(x, y);
-  if (!result.ok) { toast(result.reason); cutin("その一手、いかんです。","囲碁規則に反する着手です。","審議差し戻し"); return; }
+  if (!result.ok) { toast(result.reason); cutin("その一手、いかんです。","囲碁規則に反する着手です。","審議差し戻し",true,"illegal"); return; }
   ui.hint = null;
   ui.baseCache = null;
   sound(result.captured ? "capture" : "place");
@@ -286,7 +291,7 @@ function scheduleCpu() {
       update();
       if (game.finished && game.passes >= 2) {
         enterScoring();
-        cutin("審議終了を宣言します。","双方パスにより地合計算へ移行。","閉会宣言",true);
+        cutin("審議終了を宣言します。","双方パスにより地合計算へ移行。","閉会宣言",true,"score");
       } else scheduleCpu();
     });
   }, delay);
@@ -298,7 +303,7 @@ function passTurn() {
   ui.hint = null;
   ui.preview = null;
   ui.baseCache = null;
-  cutin("答弁を差し控えます。","パスにより手番を譲ります。","公式答弁");
+  cutin("答弁を差し控えます。","パスにより手番を譲ります。","公式答弁",true,"pass");
   update();
   if (game.finished && game.passes >= 2) {
     enterScoring();
@@ -339,7 +344,7 @@ function giveHint() {
     $("hintText").textContent = "推奨候補：" + (move.x + 1) + "列・" + (move.y + 1) + "行。"
       + move.reason + "。※ 局面を先読みした参考候補であり、最善手の保証ではありません。";
     update();
-    cutin("専門家の意見を採用します。","候補手を盤上に示しました。","参考人招致");
+    cutin("有識者の見解を発表！","候補手を盤上に示しました。","参考人招致",true,"hint");
   });
 }
 
@@ -348,7 +353,10 @@ function toggleNovice() {
   ui.novice = !ui.novice;
   ui.preview = null;
   ui.baseCache = null;
-  if (ui.novice) toast("初心者向け：指先で候補地点をなぞってください。");
+  if (ui.novice){
+    toast("初心者向け：指先で候補地点をなぞってください。");
+    cutin("初心者支援策！","勢力圏の変化を可視化します。","政策発表",true,"novice");
+  }
   update();
 }
 function enterScoring() {
@@ -357,6 +365,7 @@ function enterScoring() {
   cancelAi();
   ui.scoring = true;
   ui.novice = false;
+  cutin("議席集計中です。","地合を数えます。","選挙速報",true,"score");
   ui.hint = null;
   ui.preview = null;
   ui.dead.clear();
@@ -752,6 +761,8 @@ function wire() {
   $("menuHomeBtn").onclick=showHome;
   $("menuResignBtn").onclick=resign;
   $("menuHelpBtn").onclick=()=>dialog("helpDialog");
+  $("menuKatagoBtn").onclick=()=>{window.location.href="./katago/";};
+  $("homeKatagoBtn").onclick=()=>{window.location.href="./katago/";};
   $("setupForm").addEventListener("submit",startNewGame);
   $("modeSelect").addEventListener("change",toggleSetupFields);
   document.querySelectorAll("[data-close]").forEach(button => {
