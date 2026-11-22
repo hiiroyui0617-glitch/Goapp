@@ -117,7 +117,7 @@ export function createEffects(getSettings) {
     if(now-lastCutInAt<interval)return;
     lastCutInAt=now;
     const s=settings();
-    if(s.cutin===false){if(options.force)speak(phrase);return;}
+    if(s.cutin===false){speak(phrase);return;}
     const el=document.getElementById("cutin");
     if(!el)return;
     document.getElementById("cutinText").textContent=phrase;
