@@ -24,6 +24,7 @@ export function createEffects(getSettings) {
   let lastCutin = 0;
   let currentVoice = null;
   let recordedAudio = null;
+  let recordedSource = null;
   let recordedObjectUrl = null;
   let voices = [];
   const synth = typeof window !== "undefined" ? window.speechSynthesis : null;
@@ -133,6 +134,8 @@ export function createEffects(getSettings) {
     if(version!==queueVersion)return;
     clearTimeout(cutinTimeout);
     currentVoice=null;
+    recordedSource=null;
+    if(recordedObjectUrl){URL.revokeObjectURL(recordedObjectUrl);recordedObjectUrl=null;}
     hide();
     if(typeof callback==="function"){
       // Results should appear only after the spoken cut-in is done.
@@ -143,6 +146,7 @@ export function createEffects(getSettings) {
     queueVersion++;
     clearTimeout(cutinTimeout);
     currentVoice=null;
+    if(recordedSource){try{recordedSource.onended=null;recordedSource.stop();}catch{} recordedSource=null;}
     if(recordedAudio){try{recordedAudio.pause();recordedAudio.src="";}catch{} recordedAudio=null;}
     if(recordedObjectUrl){URL.revokeObjectURL(recordedObjectUrl);recordedObjectUrl=null;}
     try{synth?.cancel();}catch{}
@@ -174,25 +178,56 @@ export function createEffects(getSettings) {
     }
     const end=()=>finish(version,options.onDone);
     let deviceSpeechStarted = false;
-    // Files are provided by the user on this device. No cloud API keys,
-    // unlicensed imitation models, or downloaded voice clones are included.
+    // The user's MP3s are stored locally in IndexedDB. Decode and play
+    // through a gesture-unlocked Web Audio context, which avoids Safari's
+    // restrictions on play() calls occurring after asynchronous DB reads.
     if(settings.voice!==false && Number(settings.volume)>0 &&
-       options.kind && assets[options.kind] && typeof Audio!=="undefined") {
-      cutinTimeout=setTimeout(startDeviceSpeech,1400);
-      loadClip(options.kind).then(blob=>{
+       options.kind && assets[options.kind]) {
+      cutinTimeout=setTimeout(startDeviceSpeech,3200);
+      loadClip(options.kind).then(async blob=>{
         if(version!==queueVersion||deviceSpeechStarted)return;
         if(!blob){startDeviceSpeech();return;}
-        clearTimeout(cutinTimeout);
-        try {
+        try{
+          const ctx=createContext();
+          if(ctx && typeof ctx.decodeAudioData==="function"){
+            const buffer=await ctx.decodeAudioData(await blob.arrayBuffer());
+            if(version!==queueVersion||deviceSpeechStarted)return;
+            // Resume once more if returning from iOS suspended mode.
+            if(ctx.state==="suspended")await ctx.resume();
+            if(version!==queueVersion||deviceSpeechStarted)return;
+            const source=ctx.createBufferSource(),gain=ctx.createGain();
+            source.buffer=buffer;
+            gain.gain.value=Math.min(1,Number(settings.volume)/100);
+            source.connect(gain).connect(ctx.destination);
+            source.onended=()=>{if(version===queueVersion)end();};
+            recordedSource=source;
+            clearTimeout(cutinTimeout);
+            source.start();
+            // Failsafe only; onended normally closes the illustration.
+            cutinTimeout=setTimeout(end,Math.max(5000,Math.min(30000,(buffer.duration+1.5)*1000)));
+            return;
+          }
+        }catch(err){
+          console.warn("Web Audio clip decode failed; trying audio element",err);
+        }
+        if(version!==queueVersion||deviceSpeechStarted)return;
+        // Older browsers without Web Audio support can still use HTML audio.
+        try{
           recordedObjectUrl=URL.createObjectURL(blob);
-          const a=new Audio(recordedObjectUrl);
-          recordedAudio=a;
-          a.volume=Math.min(1,Number(settings.volume)/100);
-          a.onended=()=>{if(version===queueVersion)end();};
-          a.onerror=()=>startDeviceSpeech();
-          a.play().catch(startDeviceSpeech);
-          cutinTimeout=setTimeout(startDeviceSpeech,22000);
-        } catch {startDeviceSpeech();}
+          const element=new Audio(recordedObjectUrl);
+          recordedAudio=element;
+          element.preload="auto";
+          element.volume=Math.min(1,Number(settings.volume)/100);
+          element.onended=()=>{if(version===queueVersion)end();};
+          element.onerror=startDeviceSpeech;
+          await element.play();
+          if(version!==queueVersion)return;
+          clearTimeout(cutinTimeout);
+          cutinTimeout=setTimeout(end,Math.max(5000,Math.min(30000,(element.duration+1.5)*1000||18000)));
+        }catch(err){
+          console.warn("User voice playback failed",err);
+          startDeviceSpeech();
+        }
       }).catch(startDeviceSpeech);
       return;
     }
@@ -201,6 +236,7 @@ export function createEffects(getSettings) {
       if(version!==queueVersion||deviceSpeechStarted)return;
       deviceSpeechStarted=true;
       clearTimeout(cutinTimeout);
+      if(recordedSource){try{recordedSource.onended=null;recordedSource.stop();}catch{}recordedSource=null;}
       if(recordedAudio){try{recordedAudio.pause();}catch{}recordedAudio=null;}
       if(recordedObjectUrl){URL.revokeObjectURL(recordedObjectUrl);recordedObjectUrl=null;}
       if(settings.voice===false||Number(settings.volume)===0||!synth||
