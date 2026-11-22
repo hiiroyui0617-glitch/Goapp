@@ -62,9 +62,14 @@
         <div id="hintPanel" class="hint-panel" hidden><span>✦</span><div><b>参考人の見解</b><p id="hintText"></p></div><button id="clearHintBtn" type="button" aria-label="ヒントを閉じる">×</button></div>
         <div id="scorePanel" class="score-panel" hidden>
           <div class="score-head"><strong>地合審議会</strong><span>死に石は盤上の石をタップして指定できます</span></div>
+          <div class="score-legend" aria-label="盤面の地の表示">
+            <span><i class="legend-stone legend-black"></i> 黒の地</span>
+            <span><i class="legend-stone legend-white"></i> 白の地</span>
+            <span><i class="legend-neutral"></i> 未確定・ダメ</span>
+          </div>
           <div class="score-numbers">
-            <div><small>● 黒地＋アゲハマ</small><strong id="scoreBlack">0目</strong></div>
-            <div><small>○ 白地＋アゲハマ＋コミ</small><strong id="scoreWhite">0目</strong></div>
+            <div class="score-black-box"><small><i class="legend-stone legend-black"></i> 黒番</small><strong id="scoreBlack">0目</strong><span id="scoreBlackDetail">地0 ＋ アゲハマ0</span></div>
+            <div class="score-white-box"><small><i class="legend-stone legend-white"></i> 白番</small><strong id="scoreWhite">0目</strong><span id="scoreWhiteDetail">地0 ＋ アゲハマ0 ＋ コミ6.5</span></div>
           </div>
           <p id="scoreLead">結果は暫定値です。</p>
           <div class="score-actions"><button id="closeScoreBtn" type="button" class="secondary-btn">盤面に戻る</button><button id="finishScoreBtn" type="button" class="primary-btn">終局を確定</button></div>
@@ -82,6 +87,14 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="cutin" class="cutin" aria-live="polite" aria-atomic="true" hidden>
+    <div class="cutin-diagonals" aria-hidden="true"></div>
+    <div class="cutin-panel">
+      <span class="cutin-eyebrow" id="cutinLabel">緊急記者会見</span>
+      <div id="cutinText" class="cutin-text">記憶にございません。</div>
+      <span id="cutinSub" class="cutin-sub">議事録を修正しました。</span>
+    </div>
+  </div>
 
   <dialog id="menuDialog" class="app-dialog">
     <div class="dialog-top"><span class="dialog-kicker">議事進行</span><button class="dialog-close" data-close="menuDialog" aria-label="閉じる">×</button></div>
@@ -117,7 +130,10 @@
       <label class="setting-row"><span>バイブレーション</span><input id="vibrationInput" type="checkbox" checked></label>
       <label class="setting-row"><span>最終手マーク</span><input id="lastMoveInput" type="checkbox" checked></label>
       <label class="setting-row"><span>着手スピード</span><select id="speedInput"><option value="fast">速い</option><option value="normal" selected>普通</option><option value="slow">遅い</option></select></label>
+      <label class="setting-row"><span>政治家風カットイン</span><input id="cutinInput" type="checkbox" checked></label>
+      <label class="setting-row"><span>カットイン音声</span><input id="voiceInput" type="checkbox" checked></label>
     </div>
+    <p class="setting-footnote">音声には端末の日本語音声読み上げを使用します。音声の種類や対応状況はOS・ブラウザによって異なります。SEはCC0音源を優先し、通信できない場合は内蔵合成音に切り替えます。</p>
     <p class="setting-footnote">バイブレーションは対応端末のみ有効です。iPhoneのWebブラウザでは作動しない場合があります。</p>
     <button id="settingsDoneBtn" type="button" class="primary-btn submit-btn">設定を適用</button>
   </dialog>
@@ -130,7 +146,7 @@
       <p>相手の石を上下左右から完全に囲むと、その石を取れます。自殺手や同一盤面を繰り返す手（コウ）は禁止です。</p>
       <p><b>初心者</b>ボタンでは、候補の一手によって広がりそうな勢力圏を色で表示します。確定した地の判定ではありません。</p>
       <p><b>ヒント</b>は簡易AIによる候補手です。定石・最善手を厳密に証明するものではありません。</p>
-      <p>両者が続けてパスすると地合計算へ。死に石をタップで指定し、双方で合意した結果を確定してください。計算は日本式の「地＋アゲハマ＋コミ」を採用しています。</p>
+      <p>両者が続けてパスすると地合計算へ。黒地は黒い印、白地は白い印で盤面上に示します。死に石をタップで指定し、双方で合意した結果を確定してください。計算は日本式の「地＋アゲハマ＋コミ」を採用しています。</p>
       <p>待ったはCPU戦では原則として自分の一手から打ち直し。対人戦では一手ずつ戻ります。</p>
     </div>
     <button class="primary-btn submit-btn" data-close="helpDialog">承知しました</button>
