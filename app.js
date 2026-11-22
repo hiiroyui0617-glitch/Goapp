@@ -130,7 +130,7 @@ async function openKataGo(){
   // Upstream real KataGo is the fallback, NOT our simple heuristic opponent.
   window.location.href=upstream;
 }
-function sound(kind = "place") { effects.sound(kind); }
+function sound(kind = "place", count = 1) { effects.sound(kind,count); }
 function cutin(phrase, subtitle, label, force = false, kind = null, onDone = null) {
   effects.cutin(phrase, subtitle, label, {force, kind, onDone});
 }
@@ -264,7 +264,7 @@ function play(x, y) {
   if (!result.ok) { toast(result.reason); cutin("その一手、いかんです。","囲碁規則に反する着手です。","審議差し戻し",true,"illegal"); return; }
   ui.hint = null;
   ui.baseCache = null;
-  sound(result.captured ? "capture" : "place");
+  sound(result.captured ? "capture" : "place",result.captured);
   vibrate();
   if (result.captured > 0) {
     toast(result.captured + "子を確保。支持率が上昇しました。");
@@ -288,7 +288,7 @@ function scheduleCpu() {
       if (choice) {
         const result = game.play(choice.x, choice.y);
         if (result.ok) {
-          sound(result.captured ? "capture" : "place");
+          sound(result.captured ? "capture" : "place",result.captured);
           if (result.captured > 0) {
             const userLost = config.mode === "cpu" && game.turn === config.humanColor;
             cutin(userLost ? "支持率下落！" : "支持率上昇！",
@@ -852,6 +852,10 @@ function wire() {
   canvas.addEventListener("keydown",onKeyboardBoard);
   canvas.addEventListener("contextmenu",e=>e.preventDefault());
   window.addEventListener("resize",requestDraw);
+  // iPhone requires the audio context to be activated in a real user gesture.
+  // Keep the same context alive for CPU moves and asynchronous MP3 decoding.
+  document.addEventListener("pointerdown",()=>effects.unlock?.(),{capture:true,passive:true});
+  document.addEventListener("keydown",()=>effects.unlock?.(),{capture:true});
   document.addEventListener("visibilitychange",()=>{lastTick=Date.now(); if(!document.hidden && isCpuTurn()) scheduleCpu();});
   setInterval(()=>{
     const now=Date.now(),dt=Math.min(2,Math.max(0,(now-lastTick)/1000));
@@ -868,9 +872,7 @@ async function refreshVoiceCount(){
   const label=$("voicePackStatus");
   if(!label)return;
   const count=registered.length;
-  label.textContent = count===VOICE_SCENE_IDS.length
-    ? "登録済み：11 / 11 種類。全カットインで音声ファイルを使用できます。"
-    : "登録済み："+count+" / 11 種類。未登録の場面は端末読み上げになります。";
+  label.textContent = "標準音声：11 / 11 種類搭載済み。端末独自の差し替え："+count+" / 11 種類。";
 }
 function fillSettings(){
   $("volumeInput").value=settings.volume;
