@@ -42,6 +42,7 @@
         <p>石を打つ。陣地を広げる。<br>都合が悪くなったら「記憶にございません。」</p>
         <div class="home-buttons">
           <button id="startBtn" class="primary-btn" type="button">新たな審議を開始 <span>›</span></button>
+          <button id="homeKatagoBtn" class="secondary-btn" type="button">KataGo対局（AI専用画面） ›</button>
           <button id="resumeBtn" class="secondary-btn" type="button" hidden>前回の審議を再開</button>
           <button id="homeHelpBtn" class="text-btn" type="button">はじめての方はこちら</button>
         </div>
@@ -104,6 +105,7 @@
     <div class="menu-actions">
       <button id="menuResumeBtn" type="button">審議に戻る <span>›</span></button>
       <button id="menuNewBtn" type="button">新規対局 <span>›</span></button>
+      <button id="menuKatagoBtn" type="button">KataGo（高性能AI・専用画面）<span>›</span></button>
       <button id="menuHomeBtn" type="button">ホームへ <span>›</span></button>
       <button id="menuResignBtn" type="button">投了する <span>›</span></button>
       <button id="menuHelpBtn" type="button">遊び方・ルール <span>›</span></button>
@@ -114,8 +116,8 @@
     <div class="dialog-top"><span class="dialog-kicker">審議開始届</span><button class="dialog-close" data-close="setupDialog" aria-label="閉じる">×</button></div>
     <h2>新規対局</h2><p class="dialog-lead">本日の審議条件を決定してください。</p>
     <form id="setupForm">
-      <label>対局形式<select name="mode" id="modeSelect"><option value="cpu">人間 vs CPU</option><option value="local">人間 vs 人間（同じ端末）</option></select></label>
-      <label id="levelField">CPUの棋力<select name="level" id="levelSelect"></select><small>級位・段位表記は難易度プリセットです。</small></label>
+      <label>対局形式<select name="mode" id="modeSelect"><option value="cpu">人間 vs CPU</option><option value="local">人間 vs 人間（同じ端末）</option><option value="katago">KataGo（別画面で対局）</option></select></label>
+      <label id="levelField">CPUの棋力<select name="level" id="levelSelect"></select><small>級位・段位表記は従来の簡易AIの難易度プリセットです。強いKataGoは「対局形式」から選択できます。</small></label>
       <label id="colorField">あなたの手番<select name="color" id="colorSelect"><option value="1">先手（黒）</option><option value="2">後手（白）</option><option value="random">おまかせ</option></select></label>
       <div class="form-duo"><label>碁盤<select name="size" id="sizeSelect"><option value="9">9路盤</option><option value="13">13路盤</option><option value="19" selected>19路盤</option></select></label>
       <label>コミ（白への加点）<select name="komi" id="komiSelect"><option value="0">0目</option><option value="0.5">0.5目</option><option value="5.5">5.5目</option><option value="6.5" selected>6.5目</option><option value="7.5">7.5目</option></select></label></div>
@@ -134,7 +136,9 @@
       <label class="setting-row"><span>着手スピード</span><select id="speedInput"><option value="fast">速い</option><option value="normal" selected>普通</option><option value="slow">遅い</option></select></label>
       <label class="setting-row"><span>政治家風カットイン</span><input id="cutinInput" type="checkbox" checked></label>
       <label class="setting-row"><span>カットイン音声</span><input id="voiceInput" type="checkbox" checked></label>
+      <label class="setting-row"><span>読み上げ演出</span><select id="voiceStyleInput"><option value="emotional">熱演する政治家風（端末音声）</option><option value="standard">通常の読み上げ</option></select></label>
     </div>
+    <p class="setting-footnote">「しぬしぬボイス」の音声は正規の利用許諾・音声ファイルが確認できていないため未収録です。録音素材を正規に用意した場合は assets/voices/ に置くことで優先再生できます。現在は情熱的な読み上げ風に調整した端末音声を使用します。</p>
     <p class="setting-footnote">音声には端末の日本語音声読み上げを使用します。音声の種類や対応状況はOS・ブラウザによって異なります。着手SEは碁石と木製碁盤の衝撃・共鳴を模した内蔵音です。</p>
     <p class="setting-footnote">バイブレーションは対応端末のみ有効です。iPhoneのWebブラウザでは作動しない場合があります。</p>
     <button id="settingsDoneBtn" type="button" class="primary-btn submit-btn">設定を適用</button>
@@ -147,7 +151,7 @@
       <p>黒が先手で、交互に石を置きます。指で盤面をなぞると<b>半透明の石</b>が動き、指を離した交点に着手します。マウスでも操作できます。</p>
       <p>相手の石を上下左右から完全に囲むと、その石を取れます。自殺手や同一盤面を繰り返す手（コウ）は禁止です。</p>
       <p><b>初心者</b>ボタンでは、候補の一手によって広がりそうな勢力圏を色で表示します。確定した地の判定ではありません。</p>
-      <p><b>ヒント</b>は簡易AIによる候補手です。定石・最善手を厳密に証明するものではありません。</p>
+      <p><b>ヒント</b>は簡易AIによる候補手です。定石・最善手を厳密に証明するものではありません。KataGo対局は別の専用画面で起動します。スマホの機種により初回モデル読込に時間がかかります。</p>
       <p>両者が続けてパスすると地合計算へ。黒地は黒い印、白地は白い印で盤面上に示します。死に石をタップで指定し、双方で合意した結果を確定してください。計算は日本式の「地＋アゲハマ＋コミ」を採用しています。</p>
       <p>待ったはCPU戦では原則として自分の一手から打ち直し。対人戦では一手ずつ戻ります。</p>
     </div>
