@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs><linearGradient id="n" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#26435c"/><stop offset="1" stop-color="#0b1b2c"/></linearGradient><radialGradient id="b" cx=".3" cy=".22" r=".85"><stop stop-color="#829198"/><stop offset=".4" stop-color="#303940"/><stop offset="1" stop-color="#06080c"/></radialGradient><radialGradient id="w" cx=".3" cy=".22" r=".85"><stop stop-color="white"/><stop offset=".65" stop-color="#eeeae2"/><stop offset="1" stop-color="#b0aba4"/></radialGradient></defs>
+  <rect width="512" height="512" rx="110" fill="url(#n)"/>
+  <rect x="36" y="36" width="440" height="440" rx="84" fill="none" stroke="#dfbc7e" stroke-width="8"/>
+  <g stroke="#b18a51" stroke-width="8" opacity=".6"><path d="M104 181H410M104 256H410M104 331H410M181 104V410M256 104V410M331 104V410"/></g>
+  <circle cx="200" cy="205" r="98" fill="url(#b)" stroke="#0a1117" stroke-width="5"/>
+  <circle cx="319" cy="292" r="98" fill="url(#w)" stroke="#97928b" stroke-width="5"/>
+  <g transform="rotate(-12 260 350)"><rect x="165" y="371" width="185" height="64" rx="9" fill="#bf5339"/><text x="258" y="415" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="38" fill="#fff9ec">いかん</text></g>
+</svg>
