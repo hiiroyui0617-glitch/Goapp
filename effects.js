@@ -170,6 +170,7 @@ export function createEffects(getSettings) {
       el.classList.add("cutin-visible");
     }
     const end=()=>finish(version,options.onDone);
+    let deviceSpeechStarted = false;
     // If the owner has supplied a properly licensed recording for this
     // event, prefer it. No real-person voice cloning is distributed here.
     // On a missing asset or blocked playback, use animated device speech.
@@ -188,7 +189,8 @@ export function createEffects(getSettings) {
     }
     startDeviceSpeech();
     function startDeviceSpeech() {
-      if(version!==queueVersion)return;
+      if(version!==queueVersion||deviceSpeechStarted)return;
+      deviceSpeechStarted=true;
       clearTimeout(cutinTimeout);
       if(recordedAudio){try{recordedAudio.pause();}catch{}recordedAudio=null;}
       if(settings.voice===false||Number(settings.volume)===0||!synth||
