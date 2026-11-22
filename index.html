@@ -140,22 +140,22 @@
       <label class="setting-row"><span>読み上げ演出</span><select id="voiceStyleInput"><option value="emotional">熱演する政治家風（端末音声）</option><option value="standard">通常の読み上げ</option></select></label>
     </div>
     <div class="voice-upload">
-      <strong>カットイン音声を一括登録（この端末のみ）</strong>
-      <p>添付の <b>voice.zip</b> をそのまま選択すると、11種類の音声を一度に登録します。ZIP内の skip.mp3 はパスに自動対応します。</p>
+      <strong>11種類の専用音声を搭載済み</strong>
+      <p>添付いただいた11本の声をアプリに標準搭載しました。通常は何も設定する必要がありません。別の音声を使いたい場合だけZIPで一括差し替えできます。</p>
       <label for="voicePackInput">音声ZIPファイル</label>
       <input id="voicePackInput" type="file" accept=".zip,application/zip,application/x-zip-compressed">
-      <button id="voicePackBtn" type="button" class="primary-btn">11種類の音声を一括登録</button>
+      <button id="voicePackBtn" type="button" class="primary-btn">この端末の音声をZIPで差し替える</button>
       <p id="voicePackStatus" role="status" aria-live="polite">登録状況を確認しています…</p>
-      <divider></divider>
-      <strong>個別の音声を変更・削除</strong>
+      <hr class="voice-divider">
+      <strong>個別の音声を変更（任意）</strong>
       <p>一括登録後に音声を差し替えたいときに利用できます。</p>
       <label>対象のセリフ<select id="voiceSceneInput"></select></label>
       <label>音声ファイル<input id="voiceFileInput" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg"></label>
-      <div class="voice-buttons"><button type="button" id="voiceSaveBtn" class="primary-btn">音声を登録</button><button type="button" id="voiceDeleteBtn" class="secondary-btn">登録を消去</button></div>
+      <div class="voice-buttons"><button type="button" id="voiceSaveBtn" class="primary-btn">音声を変更</button><button type="button" id="voiceDeleteBtn" class="secondary-btn">標準音声に戻す</button></div>
       <p id="voiceFileStatus" role="status" aria-live="polite">登録した音声はブラウザ内に保存されます。</p>
       <a href="https://fish.audio/ja/m/337265f681534137b41e4a45d329b81f/" target="_blank" rel="noopener noreferrer">しぬしぬボイスの提供ページ（Fish Audio）</a>
     </div>
-    <p class="setting-footnote">音声はこの端末内に保存され、GitHub上へアップロードされません。未登録の場面は端末の読み上げに切り替わります。登録音声は音声が終わるまでカットインを表示します。</p>
+    <p class="setting-footnote">標準の11音声は公開GitHub Pagesから配信されます。設定画面で差し替えた音声だけがこの端末内に保存され、GitHubには送信されません。声が終わるとカットインも閉じます。</p>
     <p class="setting-footnote">音声には端末の日本語音声読み上げを使用します。音声の種類や対応状況はOS・ブラウザによって異なります。着手SEは碁石と木製碁盤の衝撃・共鳴を模した内蔵音です。</p>
     <p class="setting-footnote">バイブレーションは対応端末のみ有効です。iPhoneのWebブラウザでは作動しない場合があります。</p>
     <button id="settingsDoneBtn" type="button" class="primary-btn submit-btn">設定を適用</button>
@@ -171,7 +171,7 @@
       <p><b>ヒント</b>は簡易AIによる候補手です。定石・最善手を厳密に証明するものではありません。KataGo対局は別の専用画面で起動します。スマホの機種により初回モデル読込に時間がかかります。</p>
       <p>両者が続けてパスすると地合計算へ。黒地は黒い印、白地は白い印で盤面上に示します。死に石をタップで指定し、双方で合意した結果を確定してください。計算は日本式の「地＋アゲハマ＋コミ」を採用しています。</p>
       <p>待ったはCPU戦では原則として自分の一手から打ち直し。対人戦では一手ずつ戻ります。</p>
-      <p>音声ZIPは「設定 → カットイン音声を一括登録」から取り込めます。音声は端末内に保存されます。</p>
+      <p>11種類の声は標準搭載されています。設定から、音声ZIPやMP3で一部または全部を差し替えることもできます。</p>
     </div>
     <button class="primary-btn submit-btn" data-close="helpDialog">承知しました</button>
   </dialog>
