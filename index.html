@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#12253a">
+  <meta name="description" content="政治っぽい迷言と一緒に楽しむ、囲碁アプリ。その一手、いかんです。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon-apple.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>その一手、いかんです。｜囲碁</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="masthead">
+      <div class="brand"><span class="brand-seal" aria-hidden="true">碁</span>
+        <div><div class="brand-title">その一手、<em>いかんです。</em></div>
+          <div class="brand-subtitle">囲碁に、説明責任を。</div></div>
+      </div>
+      <div class="edition">IGO POLICY <span>令和の一局</span></div>
+    </header>
+
+    <nav class="toolbar" aria-label="対局メニュー">
+      <button id="menuBtn" type="button"><span class="tool-icon">☰</span><span>メニュー</span></button>
+      <button id="newBtn" type="button"><span class="tool-icon">▦</span><span>新規対局</span></button>
+      <button id="passBtn" type="button"><span class="tool-icon">♧</span><span>パス</span></button>
+      <button id="undoBtn" type="button"><span class="tool-icon">↶</span><span>待った</span></button>
+      <button id="hintBtn" type="button"><span class="tool-icon">✦</span><span>ヒント</span></button>
+      <button id="scoreBtn" type="button"><span class="tool-icon">◉</span><span>地合計算</span></button>
+      <button id="noviceBtn" type="button" aria-pressed="false"><span class="tool-icon">◎</span><span>初心者</span></button>
+      <button id="settingsBtn" type="button"><span class="tool-icon">⚙</span><span>設定</span></button>
+    </nav>
+
+    <main class="main">
+      <section id="homeScreen" class="home-screen">
+        <div class="home-emblem" aria-hidden="true"><div class="emblem-black"></div><div class="emblem-white"></div><span>碁</span></div>
+        <div class="overline">非公式 囲碁対局庁</div>
+        <h1>その一手、<br><span>いかんです。</span></h1>
+        <p>石を打つ。陣地を広げる。<br>都合が悪くなったら「記憶にございません。」</p>
+        <div class="home-buttons">
+          <button id="startBtn" class="primary-btn" type="button">新たな審議を開始 <span>›</span></button>
+          <button id="resumeBtn" class="secondary-btn" type="button" hidden>前回の審議を再開</button>
+          <button id="homeHelpBtn" class="text-btn" type="button">はじめての方はこちら</button>
+        </div>
+        <div class="home-stamp">正式な囲碁です。発言だけが不適切です。</div>
+      </section>
+
+      <section id="gameScreen" class="game-screen" hidden>
+        <div class="game-heading"><div><span class="tag">本日の議題</span><strong id="matchTitle">対局</strong></div><span id="moveText" class="move-tag">第1手</span></div>
+        <div id="boardFrame" class="board-frame">
+          <canvas id="boardCanvas" role="img" aria-label="囲碁盤。石を置く位置をタップまたは指でなぞって選べます。" tabindex="0"></canvas>
+        </div>
+        <div class="board-message" role="status" aria-live="polite">
+          <span id="turnIndicator" class="turn-dot black"></span><span id="statusText">黒番です。着手をどうぞ。</span>
+        </div>
+        <div id="novicePanel" class="novice-panel" hidden><span class="novice-glyph">◎</span>
+          <div><b>初心者モード：勢力圏の見通し</b><p id="noviceText">指で碁盤をなぞると、そこへ置いた場合の勢力の変化を表示します。</p></div>
+        </div>
+        <div id="hintPanel" class="hint-panel" hidden><span>✦</span><div><b>参考人の見解</b><p id="hintText"></p></div><button id="clearHintBtn" type="button" aria-label="ヒントを閉じる">×</button></div>
+        <div id="scorePanel" class="score-panel" hidden>
+          <div class="score-head"><strong>地合審議会</strong><span>死に石は盤上の石をタップして指定できます</span></div>
+          <div class="score-numbers">
+            <div><small>● 黒地＋アゲハマ</small><strong id="scoreBlack">0目</strong></div>
+            <div><small>○ 白地＋アゲハマ＋コミ</small><strong id="scoreWhite">0目</strong></div>
+          </div>
+          <p id="scoreLead">結果は暫定値です。</p>
+          <div class="score-actions"><button id="closeScoreBtn" type="button" class="secondary-btn">盤面に戻る</button><button id="finishScoreBtn" type="button" class="primary-btn">終局を確定</button></div>
+        </div>
+        <div class="player-scores">
+          <div id="blackCard" class="player-card black-card"><div class="player-main"><span class="mini-stone black-stone"></span><span id="blackName">あなた（黒）</span><span id="blackTurnMark" class="turn-label">手番</span></div>
+            <div class="player-stats"><span>アゲハマ <b id="blackCaptured">0</b></span><span>持ち時間 <b id="blackClock">00:00</b></span></div></div>
+          <div id="whiteCard" class="player-card white-card"><div class="player-main"><span class="mini-stone white-stone"></span><span id="whiteName">CPU（白）</span><span id="whiteTurnMark" class="turn-label">手番</span></div>
+            <div class="player-stats"><span>アゲハマ <b id="whiteCaptured">0</b></span><span>持ち時間 <b id="whiteClock">00:00</b></span></div></div>
+        </div>
+        <p class="footer-note">※ CPUの級位・段位は難易度の目安です。公式の棋力を保証するものではありません。</p>
+      </section>
+    </main>
+    <div class="footer-brand">その一手に、閣議決定は不要です。<span>© 非公式 囲碁対局庁</span></div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="menuDialog" class="app-dialog">
+    <div class="dialog-top"><span class="dialog-kicker">議事進行</span><button class="dialog-close" data-close="menuDialog" aria-label="閉じる">×</button></div>
+    <h2>メニュー</h2>
+    <div class="menu-actions">
+      <button id="menuResumeBtn" type="button">審議に戻る <span>›</span></button>
+      <button id="menuNewBtn" type="button">新規対局 <span>›</span></button>
+      <button id="menuHomeBtn" type="button">ホームへ <span>›</span></button>
+      <button id="menuResignBtn" type="button">投了する <span>›</span></button>
+      <button id="menuHelpBtn" type="button">遊び方・ルール <span>›</span></button>
+    </div>
+  </dialog>
+
+  <dialog id="setupDialog" class="app-dialog">
+    <div class="dialog-top"><span class="dialog-kicker">審議開始届</span><button class="dialog-close" data-close="setupDialog" aria-label="閉じる">×</button></div>
+    <h2>新規対局</h2><p class="dialog-lead">本日の審議条件を決定してください。</p>
+    <form id="setupForm">
+      <label>対局形式<select name="mode" id="modeSelect"><option value="cpu">人間 vs CPU</option><option value="local">人間 vs 人間（同じ端末）</option></select></label>
+      <label id="levelField">CPUの棋力<select name="level" id="levelSelect"></select><small>級位・段位表記は難易度プリセットです。</small></label>
+      <label id="colorField">あなたの手番<select name="color" id="colorSelect"><option value="1">先手（黒）</option><option value="2">後手（白）</option><option value="random">おまかせ</option></select></label>
+      <div class="form-duo"><label>碁盤<select name="size" id="sizeSelect"><option value="9">9路盤</option><option value="13">13路盤</option><option value="19" selected>19路盤</option></select></label>
+      <label>コミ（白への加点）<select name="komi" id="komiSelect"><option value="0">0目</option><option value="0.5">0.5目</option><option value="5.5">5.5目</option><option value="6.5" selected>6.5目</option><option value="7.5">7.5目</option></select></label></div>
+      <button type="submit" class="primary-btn submit-btn">この条件で審議を始める</button>
+    </form>
+  </dialog>
+
+  <dialog id="settingsDialog" class="app-dialog">
+    <div class="dialog-top"><span class="dialog-kicker">施行規則</span><button class="dialog-close" data-close="settingsDialog" aria-label="閉じる">×</button></div>
+    <h2>設定</h2>
+    <div class="settings-list">
+      <label class="setting-row"><span>音量 <output id="volumeOutput">50%</output></span><input id="volumeInput" type="range" min="0" max="100" step="5" value="50"></label>
+      <label class="setting-row"><span>盤面を反転</span><input id="flipInput" type="checkbox"></label>
+      <label class="setting-row"><span>バイブレーション</span><input id="vibrationInput" type="checkbox" checked></label>
+      <label class="setting-row"><span>最終手マーク</span><input id="lastMoveInput" type="checkbox" checked></label>
+      <label class="setting-row"><span>着手スピード</span><select id="speedInput"><option value="fast">速い</option><option value="normal" selected>普通</option><option value="slow">遅い</option></select></label>
+    </div>
+    <p class="setting-footnote">バイブレーションは対応端末のみ有効です。iPhoneのWebブラウザでは作動しない場合があります。</p>
+    <button id="settingsDoneBtn" type="button" class="primary-btn submit-btn">設定を適用</button>
+  </dialog>
+
+  <dialog id="helpDialog" class="app-dialog">
+    <div class="dialog-top"><span class="dialog-kicker">初めての審議</span><button class="dialog-close" data-close="helpDialog" aria-label="閉じる">×</button></div>
+    <h2>遊び方</h2>
+    <div class="help-copy">
+      <p>黒が先手で、交互に石を置きます。指で盤面をなぞると<b>半透明の石</b>が動き、指を離した交点に着手します。マウスでも操作できます。</p>
+      <p>相手の石を上下左右から完全に囲むと、その石を取れます。自殺手や同一盤面を繰り返す手（コウ）は禁止です。</p>
+      <p><b>初心者</b>ボタンでは、候補の一手によって広がりそうな勢力圏を色で表示します。確定した地の判定ではありません。</p>
+      <p><b>ヒント</b>は簡易AIによる候補手です。定石・最善手を厳密に証明するものではありません。</p>
+      <p>両者が続けてパスすると地合計算へ。死に石をタップで指定し、双方で合意した結果を確定してください。計算は日本式の「地＋アゲハマ＋コミ」を採用しています。</p>
+      <p>待ったはCPU戦では原則として自分の一手から打ち直し。対人戦では一手ずつ戻ります。</p>
+    </div>
+    <button class="primary-btn submit-btn" data-close="helpDialog">承知しました</button>
+  </dialog>
+
+  <dialog id="resultDialog" class="app-dialog result-dialog">
+    <div class="dialog-top"><span class="dialog-kicker">政府見解</span><button class="dialog-close" data-close="resultDialog" aria-label="閉じる">×</button></div>
+    <div class="result-stamp">議事録</div>
+    <h2 id="resultTitle">誠に遺憾です。</h2><p id="resultBody">本日の審議は終了しました。</p>
+    <button id="resultHomeBtn" type="button" class="secondary-btn">ホームへ</button>
+    <button id="resultNewBtn" type="button" class="primary-btn">次の審議を開始</button>
+  </dialog>
+
+  <dialog id="confirmDialog" class="app-dialog">
+    <div class="dialog-top"><span class="dialog-kicker">最終確認</span><button class="dialog-close" data-close="confirmDialog" aria-label="閉じる">×</button></div>
+    <h2 id="confirmTitle">審議を終了しますか？</h2><p id="confirmBody" class="dialog-lead"></p>
+    <div class="confirm-actions"><button id="confirmCancelBtn" type="button" class="secondary-btn">再検討する</button><button id="confirmYesBtn" type="button" class="primary-btn">了承する</button></div>
+  </dialog>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
