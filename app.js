@@ -419,7 +419,8 @@ function resign() {
   if (!game || game.finished) return;
   confirmAction("投了を表明しますか？", "一度投了すると、この対局は終了します。報道各社にも通知されます。（冗談です）", () => {
     clearTimeout(cpuTimer);
-    const loser = game.turn;
+    const loser = config.mode === "cpu" ? config.humanColor : game.turn;
+    if (config.mode === "cpu") game.turn = loser;
     const diff = game.score().lead * (loser === 1 ? 1 : -1);
     const dramatic = diff < -20;
     game.resign();
