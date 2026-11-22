@@ -1,0 +1,45 @@
+name: Bundle browser KataGo into Goapp
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/browser-katago.yml'
+permissions:
+  contents: write
+concurrency:
+  group: katago-browser-bundle
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+      - name: Fetch open-source web KataGo integration
+        run: |
+          git clone --depth 1 https://github.com/Sir-Teo/web-katrain.git /tmp/web-katrain
+      - name: Build offline-capable KataGo browser UI
+        working-directory: /tmp/web-katrain
+        env:
+          VITE_BASE_URL: /Goapp/katago/
+        run: |
+          npm ci
+          npm run build
+      - name: Preserve upstream license and publish build
+        run: |
+          rm -rf katago
+          mkdir -p katago
+          cp -R /tmp/web-katrain/dist/. katago/
+          cp /tmp/web-katrain/LICENSE katago/UPSTREAM_LICENSE
+          printf 'Based on https://github.com/Sir-Teo/web-katrain (MIT License).\nBundled KataGo browser analysis UI.\n' > katago/ATTRIBUTION.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add katago
+          git diff --cached --quiet || (git commit -m "feat: bundle MIT web KataGo browser mode" && git push)
