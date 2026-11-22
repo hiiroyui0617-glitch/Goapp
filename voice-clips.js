@@ -59,7 +59,7 @@ export async function extractVoiceZip(file, ZipReader, onProgress=()=>{}) {
   if (!file || !(file instanceof Blob)) throw new Error("ZIPファイルを選択してください。");
   if (file.size > VOICE_PACK_LIMIT) throw new Error("ZIPが20MBを超えています。");
   if (!ZipReader?.loadAsync) throw new Error("ZIP読み込み機能が利用できません。ページを再読み込みしてください。");
-  const zip=await ZipReader.loadAsync(file,{checkCRC32:true,createFolders:false});
+  const zip=await ZipReader.loadAsync(await file.arrayBuffer(),{checkCRC32:true,createFolders:false});
   const entries=new Map();
   zip.forEach((path,entry)=>{
     if(entry.dir)return;
