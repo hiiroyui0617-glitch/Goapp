@@ -1,7 +1,7 @@
 import { GoGame } from "./go-engine.js";
 import { levels, chooseCpuMove, suggest } from "./ai.js";
 import { createEffects } from "./effects.js";
-import { voiceScenes, saveClip, deleteClip } from "./voice-clips.js";
+import { voiceScenes, saveClip, deleteClip, importVoiceZip, listRegisteredClips, VOICE_SCENE_IDS } from "./voice-clips.js";
 
 const $ = id => document.getElementById(id);
 const STORAGE = "ikan_go_v1";
@@ -757,13 +757,14 @@ function wire() {
   $("newBtn").onclick=showSetup;
   $("resumeBtn").onclick=showGame;
   $("homeHelpBtn").onclick=()=>dialog("helpDialog");
+  $("homeVoiceBtn").onclick=()=>{fillSettings();dialog("settingsDialog");refreshVoiceCount();};
   $("menuBtn").onclick=()=>dialog("menuDialog");
   $("passBtn").onclick=passTurn;
   $("undoBtn").onclick=undoMove;
   $("hintBtn").onclick=giveHint;
   $("scoreBtn").onclick=()=>ui.scoring?leaveScoring():enterScoring();
   $("noviceBtn").onclick=toggleNovice;
-  $("settingsBtn").onclick=()=>{fillSettings();dialog("settingsDialog");};
+  $("settingsBtn").onclick=()=>{fillSettings();dialog("settingsDialog");refreshVoiceCount();};
   $("clearHintBtn").onclick=()=>{ui.hint=null;update();};
   $("closeScoreBtn").onclick=leaveScoring;
   $("finishScoreBtn").onclick=finishScoring;
@@ -797,6 +798,28 @@ function wire() {
   $("cutinInput").onchange=e=>{settings.cutin=e.target.checked;saveSettings();};
   $("voiceInput").onchange=e=>{settings.voice=e.target.checked;saveSettings();};
   $("voiceStyleInput").onchange=e=>{settings.voiceStyle=e.target.value;saveSettings();};
+  $("voicePackBtn").onclick=async ()=>{
+    const file=$("voicePackInput").files?.[0];
+    if(!file){$("voicePackStatus").textContent="最初に voice.zip を選択してください。";return;}
+    const button=$("voicePackBtn");
+    button.disabled=true;
+    button.textContent="11種類を登録しています…";
+    effects.unlock?.();
+    try{
+      const imported=await importVoiceZip(file,(i,total,id)=>{
+        $("voicePackStatus").textContent="ZIPを読み込み中："+i+" / "+total+"（"+id+"）";
+      });
+      await refreshVoiceCount();
+      toast(imported.length+"種類の音声を登録しました。");
+      $("voicePackInput").value="";
+    }catch(err){
+      $("voicePackStatus").textContent="取り込み失敗："+(err?.message||"ファイルを確認してください。");
+      console.warn("Voice ZIP import failed",err);
+    }finally{
+      button.disabled=false;
+      button.textContent="11種類の音声を一括登録";
+    }
+  };
   $("voiceSaveBtn").onclick=async ()=>{
     const scene=$("voiceSceneInput").value, file=$("voiceFileInput").files?.[0];
     if(!file){$("voiceFileStatus").textContent="音声ファイルを選択してください。";return;}
@@ -804,6 +827,7 @@ function wire() {
       await saveClip(scene,file);
       $("voiceFileStatus").textContent="「"+voiceScenes[scene]+"」の音声を登録しました。";
       toast("音声をこのiPhoneに登録しました。");
+      refreshVoiceCount();
     }catch(err){$("voiceFileStatus").textContent="登録できませんでした："+err.message;}
   };
   $("voiceDeleteBtn").onclick=async ()=>{
@@ -811,6 +835,7 @@ function wire() {
     try{
       await deleteClip(scene);
       $("voiceFileStatus").textContent="「"+voiceScenes[scene]+"」の登録を取り消しました。";
+      refreshVoiceCount();
     }catch(err){$("voiceFileStatus").textContent="削除できませんでした："+err.message;}
   };
   const canvas=$("boardCanvas");
@@ -837,6 +862,15 @@ function wire() {
       if(Math.floor(clocks[1]+clocks[2])%10===0)save();
     }
   },1000);
+}
+async function refreshVoiceCount(){
+  const registered=await listRegisteredClips();
+  const label=$("voicePackStatus");
+  if(!label)return;
+  const count=registered.length;
+  label.textContent = count===VOICE_SCENE_IDS.length
+    ? "登録済み：11 / 11 種類。全カットインで音声ファイルを使用できます。"
+    : "登録済み："+count+" / 11 種類。未登録の場面は端末読み上げになります。";
 }
 function fillSettings(){
   $("volumeInput").value=settings.volume;
@@ -871,6 +905,7 @@ function initialize(){
   fillSettings();
   wire();
   showHome();
+  refreshVoiceCount();
   if("serviceWorker" in navigator && location.protocol!=="file:"){
     window.addEventListener("load",()=>{
       navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).then(reg=>{
